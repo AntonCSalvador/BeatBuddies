@@ -1,6 +1,19 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Button, View } from 'react-native';
+import { signOut } from '@/utils/auth';
+import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 
 export default function ProfileScreen() {
-    return <View></View>;
+    return (
+        <SafeAreaViewAll color="white">
+            <View>
+                <Button
+                    title="Signout"
+                    onPress={() => {
+                        signOut();
+                    }}
+                ></Button>
+            </View>
+        </SafeAreaViewAll>
+    );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
-import LoginScreen from '@/screens/public/loginscreen';
+import ProfileScreen from '@/screens/pages/profilescreen';
 
 export default function ProfilePage() {
-    return <LoginScreen />;
+    return <ProfileScreen />;
 }

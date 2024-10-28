@@ -1,5 +1,4 @@
 import {
-    getAuth,
     signInWithPhoneNumber,
     ConfirmationResult,
 } from 'firebase/auth';

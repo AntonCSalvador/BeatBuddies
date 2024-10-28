@@ -1,34 +1,41 @@
-import React, { useRef, useState } from 'react';
-import { View, TextInput, Button, Alert } from 'react-native';
+import React from 'react';
+import { View, Alert } from 'react-native';
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
-import { sendOTP, verifyOTP } from '@/utils/auth'; // Import from your auth.ts file
-import { auth } from '@/firebase/firebaseConfig'; // Import your Firebase instance
 import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
+import PhoneInput from '@/components/login/PhoneInput';
+import OTPInput from '@/components/login/OTPInput';
+import { useOTP } from '@/hooks/useOTP';
+import { auth } from '@/firebase/firebaseConfig';
 
 export default function LoginScreen() {
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [otp, setOTP] = useState('');
-    const [confirmation, setConfirmation] = useState(false);
-    const recaptchaVerifier = useRef(null);
+    const {
+        phoneNumber,
+        setPhoneNumber,
+        otp,
+        setOTP,
+        confirmation,
+        recaptchaVerifier,
+        handleSendOTP,
+        handleVerifyOTP,
+    } = useOTP();
 
-    const handleSendOTP = async () => {
+    const handleSendOTPWrapper = async () => {
         try {
-            await sendOTP(phoneNumber, recaptchaVerifier.current);
-            setConfirmation(true);
-            Alert.alert('OTP Sent', 'Please check your phone for the OTP.');
-        } catch (error) {
-            Alert.alert('Error', 'Failed to send OTP. Please try again.');
+            const message = await handleSendOTP();
+            Alert.alert('OTP Sent', message);
+        } catch (error: unknown) {
+            Alert.alert('Error');
         }
     };
 
-    const handleVerifyOTP = async () => {
+    const handleVerifyOTPWrapper = async () => {
         try {
-            const user = await verifyOTP(otp);
-            if (user) {
-                Alert.alert('Success', 'User signed in successfully!');
+            const message = await handleVerifyOTP();
+            if (message) {
+                Alert.alert('Success', message);
             }
-        } catch (error) {
-            Alert.alert('Error', 'Failed to verify OTP. Please try again.');
+        } catch (error: unknown) {
+            Alert.alert('Error');
         }
     };
 
@@ -40,23 +47,17 @@ export default function LoginScreen() {
                     firebaseConfig={auth.app.options}
                 />
                 {!confirmation ? (
-                    <>
-                        <TextInput
-                            placeholder="Phone Number"
-                            value={phoneNumber}
-                            onChangeText={setPhoneNumber}
-                        />
-                        <Button title="Send OTP" onPress={handleSendOTP} />
-                    </>
+                    <PhoneInput
+                        phoneNumber={phoneNumber}
+                        setPhoneNumber={setPhoneNumber}
+                        onSendOTP={handleSendOTPWrapper}
+                    />
                 ) : (
-                    <>
-                        <TextInput
-                            placeholder="OTP"
-                            value={otp}
-                            onChangeText={setOTP}
-                        />
-                        <Button title="Verify OTP" onPress={handleVerifyOTP} />
-                    </>
+                    <OTPInput
+                        otp={otp}
+                        setOTP={setOTP}
+                        onVerifyOTP={handleVerifyOTPWrapper}
+                    />
                 )}
             </View>
         </SafeAreaViewAll>
