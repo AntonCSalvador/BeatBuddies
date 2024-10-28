@@ -16,10 +16,8 @@ const SessionContext = createContext<SessionContextType>({
     setLoading: () => {},
 });
 
-// Custom hook for using session context
 export const useSession = () => useContext(SessionContext);
 
-// SessionProvider component
 export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const [session, setSession] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -27,16 +25,14 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
     const segments = useSegments();
   
     useEffect(() => {
-      // Listen for authentication state changes
       const unsubscribe = onAuthStateChanged(auth, (user) => {
-        setSession(user); // Set user session
-        setLoading(false); // Set loading to false
+        setSession(user); 
+        setLoading(false); 
       });
   
       return () => unsubscribe(); 
     }, []);
   
-    // Handle redirects based on authentication state
     useEffect(() => {
       if (!loading) {
         if (!session) {

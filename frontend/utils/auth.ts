@@ -1,6 +1,5 @@
 import { getAuth, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import { auth } from '@/firebase/firebaseConfig'; // Adjust path to your Firebase config
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 
 // Create a variable to hold the confirmation result
 let confirmationResult: ConfirmationResult | null = null;
