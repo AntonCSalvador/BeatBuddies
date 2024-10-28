@@ -6,7 +6,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
     return (
-<SessionProvider>
+        <SessionProvider>
             <Slot />
         </SessionProvider>
     );
