@@ -10,6 +10,7 @@
     "test": "jest --watchAll",
     "lint": "expo lint",
     "format": "prettier --write \"app/**/*.{js,jsx,ts,tsx}\" \"components/**/*.{js,jsx,ts,tsx}\" \"screens/**/*.{js,jsx,ts,tsx}\" \"utils/**/*.{js,jsx,ts,tsx}\"",
+    "format-check": "prettier --check \"app/**/*.{js,jsx,ts,tsx}\" \"components/**/*.{js,jsx,ts,tsx}\" \"screens/**/*.{js,jsx,ts,tsx}\" \"utils/**/*.{js,jsx,ts,tsx}\"",
     "prepare": "husky"
   },
   "jest": {
