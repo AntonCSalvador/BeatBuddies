@@ -40,7 +40,7 @@ export default function HeaderBody() {
     };
 
     return (
-        <View>
+        <View className='w-full h-[50%] bg-red-500'>
             <FirebaseRecaptchaVerifierModal
                 ref={recaptchaVerifier}
                 firebaseConfig={auth.app.options}
