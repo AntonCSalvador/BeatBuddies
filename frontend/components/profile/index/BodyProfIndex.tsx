@@ -1,15 +1,12 @@
-import React from "react";
+import React from 'react';
 import { signOut } from '@/utils/auth';
 import { Alert } from 'react-native';
-import { useRouter } from "expo-router";
-import { View, Text } from "react-native";
-import LinkOptions from "./LinkOptions";
-
-
-
+import { useRouter } from 'expo-router';
+import { View, Text } from 'react-native';
+import LinkOptions from './LinkOptions';
 
 export default function BodyProfIndex() {
-    const router = useRouter(); 
+    const router = useRouter();
 
     const confirmSignOut = () => {
         Alert.alert(
@@ -30,7 +27,7 @@ export default function BodyProfIndex() {
     };
 
     return (
-<View className="flex-1 w-full relative">
+        <View className="flex-1 w-full relative">
             {/* Profile Header */}
             <View className="w-full h-[7%]">
                 <Text className="text-2xl pt-4 pl-4 font-nunito-extrabold">
@@ -47,9 +44,7 @@ export default function BodyProfIndex() {
                 />
                 <LinkOptions
                     title="Transaction History"
-                    onPress={() =>
-                        router.push('/(pages)/home')
-                    }
+                    onPress={() => router.push('/(pages)/home')}
                     color="black"
                 />
             </View>
