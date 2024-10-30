@@ -26,9 +26,9 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
                 />
             </View>
             <TouchableOpacity
-                className={`w-[95%] p-3 rounded-xl ${phoneNumber.length === 10 ? 'bg-teal-600' : 'bg-gray-400'}`}
+                className={`w-[95%] p-3 rounded-xl ${phoneNumber.length === 12 ? 'bg-teal-600' : 'bg-gray-400'}`}
                 onPress={onSendOTP}
-                disabled={phoneNumber.length <= 10}
+                disabled={phoneNumber.length <= 11}
                 activeOpacity={0.8}
             >
                 <Text className="text-white text-center font-semibold">

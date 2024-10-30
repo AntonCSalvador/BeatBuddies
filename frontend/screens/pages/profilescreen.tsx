@@ -12,7 +12,7 @@ export default function ProfileScreen() {
                     onPress={() => {
                         signOut();
                     }}
-                ></Button>
+                />
             </View>
         </SafeAreaViewAll>
     );
