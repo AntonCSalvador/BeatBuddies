@@ -36,6 +36,15 @@ export default function TabsLayout() {
                 }}
             />
             <Tabs.Screen
+                name="activity"
+                options={{
+                    title: 'Activity',
+                    tabBarIcon: ({ color, size }) => (
+                        <Ionicons name="flash-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="profile"
                 options={{
                     title: 'Profile',
