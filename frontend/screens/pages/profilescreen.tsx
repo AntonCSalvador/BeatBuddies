@@ -6,7 +6,7 @@ import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 export default function ProfileScreen() {
     return (
         <SafeAreaViewAll color="white">
-            <View>
+            <View className="flex-1">
                 <Button
                     title="Signout"
                     onPress={() => {

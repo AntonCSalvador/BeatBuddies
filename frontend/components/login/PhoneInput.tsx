@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, TextInput, Button } from 'react-native';
-import { styled } from 'nativewind';
+import { View, TextInput, TouchableOpacity, Text } from 'react-native';
 
 interface PhoneInputProps {
     phoneNumber: string;
@@ -14,11 +13,11 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
     onSendOTP,
 }) => {
     return (
-        <View className="flex items-center justify-center p-4">
-            <View className="w-4/5 p-3 rounded-full bg-gray-100 border border-gray-300 mb-4">
+        <View className="flex flex-col items-center justify-center p-4">
+            <View className="w-[95%] p-1 rounded-xl bg-gray-100 border border-gray-300 mb-4">
                 <TextInput
                     className="text-base text-gray-800 px-4 py-2"
-                    placeholder="Phone Number"
+                    placeholder="Enter your phone number"
                     value={phoneNumber}
                     onChangeText={setPhoneNumber}
                     keyboardType="phone-pad"
@@ -26,10 +25,18 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
                     placeholderTextColor="#888"
                 />
             </View>
-            <Button title="Send OTP" onPress={onSendOTP} />
+            <TouchableOpacity
+                className={`w-[95%] p-3 rounded-xl ${phoneNumber.length === 10 ? 'bg-teal-600' : 'bg-gray-400'}`}
+                onPress={onSendOTP}
+                disabled={phoneNumber.length <= 10}
+                activeOpacity={0.8}
+            >
+                <Text className="text-white text-center font-semibold">
+                    Send OTP
+                </Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
 export default PhoneInput;
-
