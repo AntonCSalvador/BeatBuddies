@@ -43,19 +43,44 @@ export default function BodyProfIndex() {
                     color="black"
                 />
                 <LinkOptions
-                    title="Transaction History"
+                    title="Activity"
+                    onPress={() => router.push('/(pages)/home')}
+                    color="black"
+                />
+            </View>
+
+            {/* Ratings Header */}
+            <View className="w-full h-[7%] mt-4 border-t">
+                <Text className="text-2xl pt-4 pl-4 font-nunito-extrabold">
+                    Ratings
+                </Text>
+            </View>
+
+            {/* Ratings Options */}
+            <View className="w-full">
+                <LinkOptions
+                    title="Albums"
+                    onPress={() => router.push('/(pages)/home')}
+                    color="black"
+                />
+                <LinkOptions
+                    title="Songs"
+                    onPress={() => router.push('/(pages)/home')}
+                    color="black"
+                />
+                <LinkOptions
+                    title="Artists"
                     onPress={() => router.push('/(pages)/home')}
                     color="black"
                 />
             </View>
 
             {/* Security Header */}
-            <View className="w-full h-[7%] mt-4">
+            <View className="w-full h-[7%] mt-4 border-t">
                 <Text className="text-2xl pt-4 pl-4 font-nunito-extrabold">
                     Security
                 </Text>
             </View>
-
             {/* Security Options */}
             <View className="w-full">
                 <LinkOptions
