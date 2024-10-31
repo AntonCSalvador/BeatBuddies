@@ -1,6 +1,11 @@
 import React from 'react';
-import { View } from 'react-native';
+import HomeScreen from '@/screens/pages/home/homescreen';
+import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 
 export default function HomePage() {
-    return <View></View>;
+    return (
+        <SafeAreaViewAll color="white">
+            <HomeScreen />
+        </SafeAreaViewAll>
+    );
 }
