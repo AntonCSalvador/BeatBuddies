@@ -4,9 +4,8 @@ import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 
 export default function SearchPage() {
     return (
-    <SafeAreaViewAll color="white">
-    <SearchScreen />
-</SafeAreaViewAll>
+        <SafeAreaViewAll color="white">
+            <SearchScreen />
+        </SafeAreaViewAll>
     );
-
 }

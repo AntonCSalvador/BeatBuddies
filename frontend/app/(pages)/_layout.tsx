@@ -40,7 +40,11 @@ export default function TabsLayout() {
                 options={{
                     title: 'Activity',
                     tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="flash-outline" size={size} color={color} />
+                        <Ionicons
+                            name="flash-outline"
+                            size={size}
+                            color={color}
+                        />
                     ),
                 }}
             />
