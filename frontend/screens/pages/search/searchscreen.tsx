@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, Image } from 'react-native';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
-
+import { Audio } from 'expo-av';
 
 // Define the type for the track data, including album images
 interface Track {
@@ -10,6 +10,7 @@ interface Track {
     artist: string;
     album: string;
     albumCover: string;
+    previewUrl: string | null;  // Add preview URL
 }
 
 // Function to get the access token
@@ -51,6 +52,7 @@ async function searchTrackByName(trackName: string): Promise<Track | null> {
             artist: track.artists[0].name,
             album: track.album.name,
             albumCover: track.album.images[0].url,
+            previewUrl: track.preview_url,  // Get the preview URL
         };
     } else {
         return null;
@@ -61,9 +63,15 @@ export default function SearchScreen() {
     const [searchText, setSearchText] = useState('');
     const [track, setTrack] = useState<Track | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [sound, setSound] = useState<Audio.Sound | null>(null);
 
     // Function to handle search
     const handleSearch = async () => {
+        if (sound) {
+            await sound.unloadAsync(); // Stop any previously loaded sound
+            setSound(null);
+        }
+
         try {
             const result = await searchTrackByName(searchText);
             if (result) {
@@ -75,6 +83,17 @@ export default function SearchScreen() {
             }
         } catch (err) {
             setError('An error occurred while searching');
+        }
+    };
+
+    // Function to play the preview
+    const playPreview = async () => {
+        if (track?.previewUrl) {
+            const { sound } = await Audio.Sound.createAsync(
+                { uri: track.previewUrl },
+                { shouldPlay: true }
+            );
+            setSound(sound);
         }
     };
 
@@ -112,6 +131,13 @@ export default function SearchScreen() {
                     ) : (
                         <Text>No Album Cover Available</Text>
                     )}
+                    {/* Play button for preview */}
+                    {track.previewUrl ? (
+                        <Button title="Play Preview" onPress={playPreview} />
+                    ) : (
+                        <Text>No Preview Available</Text>
+                    )}
+
                 </View>
             ) : (
                 !error && (
