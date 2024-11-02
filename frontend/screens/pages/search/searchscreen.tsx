@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Image } from 'react-native';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { Audio } from 'expo-av';
@@ -10,7 +10,7 @@ interface Track {
     artist: string;
     album: string;
     albumCover: string;
-    previewUrl: string | null;  // Add preview URL
+    previewUrl: string | null;
 }
 
 // Function to get the access token
@@ -52,7 +52,7 @@ async function searchTrackByName(trackName: string): Promise<Track | null> {
             artist: track.artists[0].name,
             album: track.album.name,
             albumCover: track.album.images[0].url,
-            previewUrl: track.preview_url,  // Get the preview URL
+            previewUrl: track.preview_url,
         };
     } else {
         return null;
@@ -64,6 +64,22 @@ export default function SearchScreen() {
     const [track, setTrack] = useState<Track | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
+
+    useEffect(() => {
+        // Set audio mode for playback
+        Audio.setAudioModeAsync({
+            allowsRecordingIOS: false,
+            playsInSilentModeIOS: true,
+            staysActiveInBackground: true,
+        });
+
+        // Clean up sound on component unmount
+        return () => {
+            if (sound) {
+                sound.unloadAsync();
+            }
+        };
+    }, [sound]);
 
     // Function to handle search
     const handleSearch = async () => {
@@ -89,11 +105,15 @@ export default function SearchScreen() {
     // Function to play the preview
     const playPreview = async () => {
         if (track?.previewUrl) {
-            const { sound } = await Audio.Sound.createAsync(
-                { uri: track.previewUrl },
-                { shouldPlay: true }
-            );
-            setSound(sound);
+            try {
+                const { sound: newSound } = await Audio.Sound.createAsync(
+                    { uri: track.previewUrl },
+                    { shouldPlay: true }
+                );
+                setSound(newSound);
+            } catch (error) {
+                console.error("Error playing sound:", error);
+            }
         }
     };
 
@@ -123,6 +143,7 @@ export default function SearchScreen() {
                     <Text>Track Name: {track.name}</Text>
                     <Text>Artist: {track.artist}</Text>
                     <Text>Album: {track.album}</Text>
+                    <Text>Preview: {track.previewUrl}</Text>
                     {track.albumCover ? (
                         <Image
                             source={{ uri: track.albumCover }}
@@ -131,13 +152,11 @@ export default function SearchScreen() {
                     ) : (
                         <Text>No Album Cover Available</Text>
                     )}
-                    {/* Play button for preview */}
                     {track.previewUrl ? (
                         <Button title="Play Preview" onPress={playPreview} />
                     ) : (
                         <Text>No Preview Available</Text>
                     )}
-
                 </View>
             ) : (
                 !error && (

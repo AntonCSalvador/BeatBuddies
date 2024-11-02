@@ -14,7 +14,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gator-leasing.frontend"
+      "bundleIdentifier": "com.gator-leasing.frontend",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app uses audio playback.",
+        "NSAppleMusicUsageDescription": "This app requires audio playback permission."
+      }
     },
     "android": {
       "adaptiveIcon": {
