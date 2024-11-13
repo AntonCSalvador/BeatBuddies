@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image } from 'react-native';
+import { View, Text, TextInput, Button, Image, ScrollView } from 'react-native';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { Audio } from 'expo-av';
 
@@ -18,6 +18,7 @@ async function getAccessToken() {
     const clientId = SPOTIFY_CLIENT_ID;
     const clientSecret = SPOTIFY_CLIENT_SECRET;
 
+    // Fetch access token from Spotify API
     const response = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
         headers: {
@@ -31,11 +32,13 @@ async function getAccessToken() {
     return data.access_token;
 }
 
-// Function to search for a track by name
-async function searchTrackByName(trackName: string): Promise<Track | null> {
+// Function to search for tracks by name with pagination
+async function searchTrackByName(trackName: string, offset = 0): Promise<Track[]> {
     const token = await getAccessToken();
+    
+    // Search for tracks using Spotify API with pagination support
     const response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(trackName)}&type=track&limit=1`,
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(trackName)}&type=track&limit=5&offset=${offset}`,
         {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -45,25 +48,28 @@ async function searchTrackByName(trackName: string): Promise<Track | null> {
 
     const searchData = await response.json();
     if (searchData.tracks.items.length > 0) {
-        const track = searchData.tracks.items[0];
-        return {
+        // Map API response to Track objects
+        return searchData.tracks.items.map((track: any) => ({
             id: track.id,
             name: track.name,
             artist: track.artists[0].name,
             album: track.album.name,
-            albumCover: track.album.images[0].url,
+            albumCover: track.album.images[0]?.url || '',
             previewUrl: track.preview_url,
-        };
+        }));
     } else {
-        return null;
+        return [];
     }
 }
 
 export default function SearchScreen() {
-    const [searchText, setSearchText] = useState('');
-    const [track, setTrack] = useState<Track | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [sound, setSound] = useState<Audio.Sound | null>(null);
+    const [searchText, setSearchText] = useState(''); // Search input text
+    const [tracks, setTracks] = useState<Track[]>([]); // List of unique tracks
+    const [error, setError] = useState<string | null>(null); // Error message
+    const [sound, setSound] = useState<Audio.Sound | null>(null); // Audio sound object
+    const [offset, setOffset] = useState(0); // Pagination offset
+    const [hasMore, setHasMore] = useState(true); // Flag to check if more tracks can be loaded
+    const [isLoading, setIsLoading] = useState(false); // Flag to prevent duplicate requests
 
     useEffect(() => {
         // Set audio mode for playback
@@ -81,44 +87,85 @@ export default function SearchScreen() {
         };
     }, [sound]);
 
-    // Function to handle search
+    // Function to fetch tracks and update state
+    const fetchTracks = async (query: string, newOffset: number) => {
+        if (isLoading || !hasMore) return; // Prevent fetching if already loading or no more tracks
+
+        setIsLoading(true);
+        try {
+            const result = await searchTrackByName(query, newOffset);
+            if (result.length > 0) {
+                setTracks((prevTracks) => {
+                    const allTracks = [...prevTracks, ...result];
+
+                    // Filter out tracks with duplicate artists
+                    const uniqueArtists = new Set();
+                    return allTracks.filter((track) => {
+                        if (uniqueArtists.has(track.artist)) {
+                            return false; // Exclude duplicate artists
+                        } else {
+                            uniqueArtists.add(track.artist);
+                            return true;
+                        }
+                    });
+                });
+                setOffset(newOffset + result.length);
+            } else {
+                setHasMore(false); // No more tracks available
+            }
+        } catch (err) {
+            setError('An error occurred while fetching more tracks');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Function to handle initial search
     const handleSearch = async () => {
         if (sound) {
-            await sound.unloadAsync(); // Stop any previously loaded sound
+            await sound.unloadAsync(); // Stop any playing sound
+            setSound(null);
+        }
+
+        // Reset state for new search
+        setTracks([]);
+        setOffset(0);
+        setHasMore(true);
+        setError(null);
+        fetchTracks(searchText, 0); // Fetch first batch of tracks
+    };
+
+    // Function to play the preview audio
+    const playPreview = async (previewUrl: string) => {
+        if (sound) {
+            await sound.unloadAsync(); // Stop previously playing sound
             setSound(null);
         }
 
         try {
-            const result = await searchTrackByName(searchText);
-            if (result) {
-                setTrack(result);
-                setError(null);
-            } else {
-                setTrack(null);
-                setError('Track not found');
-            }
-        } catch (err) {
-            setError('An error occurred while searching');
-        }
-    };
-
-    // Function to play the preview
-    const playPreview = async () => {
-        if (track?.previewUrl) {
-            try {
-                const { sound: newSound } = await Audio.Sound.createAsync(
-                    { uri: track.previewUrl },
-                    { shouldPlay: true }
-                );
-                setSound(newSound);
-            } catch (error) {
-                console.error("Error playing sound:", error);
-            }
+            const { sound: newSound } = await Audio.Sound.createAsync(
+                { uri: previewUrl },
+                { shouldPlay: true }
+            );
+            setSound(newSound); // Save reference to the new sound
+        } catch (error) {
+            console.error("Error playing sound:", error);
         }
     };
 
     return (
-        <View style={{ padding: 16 }}>
+        <ScrollView
+            contentContainerStyle={{ padding: 16 }}
+            onScroll={({ nativeEvent }) => {
+                const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+                // Check if user scrolled near the bottom
+                if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
+                    fetchTracks(searchText, offset); // Fetch more tracks
+                }
+            }}
+            scrollEventThrottle={16} // Adjust for smooth scrolling
+        >
+            {/* Search input field */}
             <TextInput
                 placeholder="Enter track name"
                 value={searchText}
@@ -131,19 +178,19 @@ export default function SearchScreen() {
                     borderRadius: 4,
                 }}
             />
+            {/* Search button */}
             <Button title="Search" onPress={handleSearch} />
 
-            {error && (
-                <Text style={{ color: 'red', marginTop: 16 }}>{error}</Text>
-            )}
+            {/* Error message */}
+            {error && <Text style={{ color: 'red', marginTop: 16 }}>{error}</Text>}
 
-            {track ? (
-                <View style={{ marginTop: 16 }}>
+            {/* List of tracks */}
+            {tracks.map((track) => (
+                <View key={track.id} style={{ marginTop: 16 }}>
                     <Text>Track ID: {track.id}</Text>
                     <Text>Track Name: {track.name}</Text>
                     <Text>Artist: {track.artist}</Text>
                     <Text>Album: {track.album}</Text>
-                    <Text>Preview: {track.previewUrl}</Text>
                     {track.albumCover ? (
                         <Image
                             source={{ uri: track.albumCover }}
@@ -153,18 +200,18 @@ export default function SearchScreen() {
                         <Text>No Album Cover Available</Text>
                     )}
                     {track.previewUrl ? (
-                        <Button title="Play Preview" onPress={playPreview} />
+                        <Button
+                            title="Play Preview"
+                            onPress={() => track.previewUrl && playPreview(track.previewUrl)}
+                        />
                     ) : (
                         <Text>No Preview Available</Text>
                     )}
                 </View>
-            ) : (
-                !error && (
-                    <Text style={{ marginTop: 16 }}>
-                        Enter a track name and press "Search"
-                    </Text>
-                )
-            )}
-        </View>
+            ))}
+
+            {/* Loading indicator */}
+            {isLoading && <Text>Loading more...</Text>}
+        </ScrollView>
     );
 }
