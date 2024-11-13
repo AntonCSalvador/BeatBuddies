@@ -186,26 +186,42 @@ export default function SearchScreen() {
 
             {/* List of tracks */}
             {tracks.map((track) => (
-                <View key={track.id} style={{ marginTop: 16 }}>
-                    <Text>Track ID: {track.id}</Text>
-                    <Text>Track Name: {track.name}</Text>
-                    <Text>Artist: {track.artist}</Text>
-                    <Text>Album: {track.album}</Text>
+                <View 
+                    key={track.id} 
+                    className="flex-row items-center mt-4 p-3 bg-neutral-200 rounded-lg"
+                >
+                    {/* Album Cover */}
                     {track.albumCover ? (
                         <Image
                             source={{ uri: track.albumCover }}
-                            style={{ width: 200, height: 200, marginTop: 8 }}
+                            className="w-20 h-20 rounded-lg mr-4"
                         />
                     ) : (
-                        <Text>No Album Cover Available</Text>
+                        <View className="w-20 h-20 bg-neutral-400 rounded-lg justify-center items-center mr-4">
+                            <Text className="text-neutral-700">No Cover</Text>
+                        </View>
                     )}
-                    {track.previewUrl ? (
+
+                    {/* Song Details */}
+                    <View className="flex-1">
+                        <Text className="text-black font-bold text-lg">
+                            {track.name}
+                        </Text>
+                        <Text className="text-neutral-600 text-sm mt-1">
+                            {track.album} • {new Date().getFullYear()} {/* Replace with actual year if available */}
+                        </Text>
+                        <Text className="text-neutral-500 text-sm mt-1">
+                            {track.artist}
+                        </Text>
+                    </View>
+
+                    {/* Play Preview Button */}
+                    {track.previewUrl && (
                         <Button
-                            title="Play Preview"
-                            onPress={() => track.previewUrl && playPreview(track.previewUrl)}
+                            title="Play"
+                            color="#007BFF"
+                            onPress={() => playPreview(track.previewUrl!)}
                         />
-                    ) : (
-                        <Text>No Preview Available</Text>
                     )}
                 </View>
             ))}
