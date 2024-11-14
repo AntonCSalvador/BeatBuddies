@@ -33,9 +33,12 @@ async function getAccessToken() {
 }
 
 // Function to search for tracks by name with pagination
-async function searchTrackByName(trackName: string, offset = 0): Promise<Track[]> {
+async function searchTrackByName(
+    trackName: string,
+    offset = 0
+): Promise<Track[]> {
     const token = await getAccessToken();
-    
+
     // Search for tracks using Spotify API with pagination support
     const response = await fetch(
         `https://api.spotify.com/v1/search?q=${encodeURIComponent(trackName)}&type=track&limit=5&offset=${offset}`,
@@ -149,7 +152,7 @@ export default function SearchScreen() {
             );
             setSound(newSound); // Save reference to the new sound
         } catch (error) {
-            console.error("Error playing sound:", error);
+            console.error('Error playing sound:', error);
         }
     };
 
@@ -157,9 +160,13 @@ export default function SearchScreen() {
         <ScrollView
             contentContainerStyle={{ padding: 16 }}
             onScroll={({ nativeEvent }) => {
-                const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+                const { layoutMeasurement, contentOffset, contentSize } =
+                    nativeEvent;
                 // Check if user scrolled near the bottom
-                if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
+                if (
+                    layoutMeasurement.height + contentOffset.y >=
+                    contentSize.height - 20
+                ) {
                     fetchTracks(searchText, offset); // Fetch more tracks
                 }
             }}
@@ -182,12 +189,14 @@ export default function SearchScreen() {
             <Button title="Search" onPress={handleSearch} />
 
             {/* Error message */}
-            {error && <Text style={{ color: 'red', marginTop: 16 }}>{error}</Text>}
+            {error && (
+                <Text style={{ color: 'red', marginTop: 16 }}>{error}</Text>
+            )}
 
             {/* List of tracks */}
             {tracks.map((track) => (
-                <View 
-                    key={track.id} 
+                <View
+                    key={track.id}
                     className="flex-row items-center mt-4 p-3 bg-neutral-200 rounded-lg"
                 >
                     {/* Album Cover */}
@@ -208,7 +217,8 @@ export default function SearchScreen() {
                             {track.name}
                         </Text>
                         <Text className="text-neutral-600 text-sm mt-1">
-                            {track.album} • {new Date().getFullYear()} {/* Replace with actual year if available */}
+                            {track.album} • {new Date().getFullYear()}{' '}
+                            {/* Replace with actual year if available */}
                         </Text>
                         <Text className="text-neutral-500 text-sm mt-1">
                             {track.artist}
