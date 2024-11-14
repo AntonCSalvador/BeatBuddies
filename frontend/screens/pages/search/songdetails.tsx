@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Button, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native'; // Updated import
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 
@@ -24,8 +24,9 @@ export default function SongDetails({ songId }: SongDetailsProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false); // To track play/pause status
     const [rating, setRating] = useState<number>(0); // Updated state for half-star rating
-    const navigation = useNavigation(); // Use navigation to handle back
+    const navigation = useNavigation();
 
     useEffect(() => {
         async function fetchTrackDetails() {
@@ -62,15 +63,29 @@ export default function SongDetails({ songId }: SongDetailsProps) {
 
         return () => {
             if (sound) {
-                sound.unloadAsync();
+                sound.unloadAsync(); // Ensure sound is stopped when component unmounts
             }
         };
     }, [songId]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            return () => {
+                if (sound) {
+                    sound.unloadAsync();
+                    setSound(null);
+                    setIsPlaying(false); // Reset state when navigating away
+                }
+            };
+        }, [sound])
+    );
 
     const playPreview = async () => {
         if (sound) {
             await sound.unloadAsync();
             setSound(null);
+            setIsPlaying(false);
+            return;
         }
 
         if (track?.previewUrl) {
@@ -80,20 +95,35 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                     { shouldPlay: true }
                 );
                 setSound(newSound);
+                setIsPlaying(true);
             } catch (error) {
                 console.error('Error playing preview:', error);
             }
         }
     };
 
-    // Handle star press for half-star rating
+    const pausePreview = async () => {
+        if (sound) {
+            await sound.pauseAsync();
+            setIsPlaying(false);
+        }
+    };
+
+    const togglePlayPause = () => {
+        if (isPlaying) {
+            pausePreview();
+        } else {
+            playPreview();
+        }
+    };
+
     const handleStarPress = (star: number) => {
         if (rating === star) {
-            setRating(star - 0.5); // Full to half
+            setRating(star - 0.5);
         } else if (rating === star - 0.5) {
-            setRating(0); // Half to none
+            setRating(0);
         } else {
-            setRating(star); // None or half to full
+            setRating(star);
         }
     };
 
@@ -144,12 +174,13 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 })}
 
                 {/* Submit Button */}
-                <TouchableOpacity onPress={() => console.log("hello")} className="ml-4">
+                <TouchableOpacity onPress={() => console.log("Rating submitted")} className="ml-4">
                     <Ionicons name="send-outline" size={32} color="#4CAF50" />
                 </TouchableOpacity>
             </View>
+
             {track.previewUrl ? (
-                <Button title="Play Preview" onPress={playPreview} />
+                <Button title={isPlaying ? "Pause Preview" : "Play Preview"} onPress={togglePlayPause} />
             ) : (
                 <Text style={styles.noPreview}>No Preview Available</Text>
             )}
