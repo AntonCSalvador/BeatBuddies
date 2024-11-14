@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, Button, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 
@@ -24,6 +24,7 @@ export default function SongDetails({ songId }: SongDetailsProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
+    const [rating, setRating] = useState<number>(0); // Updated state for half-star rating
     const navigation = useNavigation(); // Use navigation to handle back
 
     useEffect(() => {
@@ -85,6 +86,17 @@ export default function SongDetails({ songId }: SongDetailsProps) {
         }
     };
 
+    // Handle star press for half-star rating
+    const handleStarPress = (star: number) => {
+        if (rating === star) {
+            setRating(star - 0.5); // Full to half
+        } else if (rating === star - 0.5) {
+            setRating(0); // Half to none
+        } else {
+            setRating(star); // None or half to full
+        }
+    };
+
     if (loading) {
         return <ActivityIndicator size="large" color="#007BFF" />;
     }
@@ -108,6 +120,34 @@ export default function SongDetails({ songId }: SongDetailsProps) {
             <Text style={styles.title}>{track.name}</Text>
             <Text style={styles.subtitle}>Artist: {track.artist}</Text>
             <Text style={styles.album}>Album: {track.album}</Text>
+
+            {/* Half-Star Rating */}
+            <View style={styles.ratingContainer}>
+                {[1, 2, 3, 4, 5].map((star) => {
+                    let iconName = "star-outline";
+
+                    if (rating >= star) {
+                        iconName = "star";
+                    } else if (rating === star - 0.5) {
+                        iconName = "star-half";
+                    }
+
+                    return (
+                        <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
+                            <Ionicons
+                                name={iconName}
+                                size={32}
+                                color="#FFD700"
+                            />
+                        </TouchableOpacity>
+                    );
+                })}
+
+                {/* Submit Button */}
+                <TouchableOpacity onPress={() => console.log("hello")} className="ml-4">
+                    <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
+                </TouchableOpacity>
+            </View>
             {track.previewUrl ? (
                 <Button title="Play Preview" onPress={playPreview} />
             ) : (
@@ -179,5 +219,9 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: 'red',
         textAlign: 'center',
+    },
+    ratingContainer: {
+        flexDirection: 'row',
+        marginVertical: 16,
     },
 });
