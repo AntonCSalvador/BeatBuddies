@@ -30,10 +30,8 @@ async function getAccessToken() {
     const data = await response.json();
     return data.access_token;
 }
-
 async function searchTrackByName(trackName: string, offset = 0): Promise<Track[]> {
     const token = await getAccessToken();
-
     const response = await fetch(
         `https://api.spotify.com/v1/search?q=${encodeURIComponent(trackName)}&type=track&limit=5&offset=${offset}`,
         {

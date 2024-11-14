@@ -6,7 +6,10 @@ interface LoadingSpinnerProps {
     color?: string;
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ size = 'large', color = '#000' }) => {
+const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+    size = 'large',
+    color = '#000',
+}) => {
     return (
         <View style={styles.container}>
             <ActivityIndicator size={size} color={color} />
