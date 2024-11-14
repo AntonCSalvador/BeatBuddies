@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
-// import { db } from '@/firebase/firebaseConfig';
+import { db } from '@/firebase/firebaseConfig'; //make sure you add into your firebaseConfig.ts
 import { useSession } from '@/contexts/SessionContext';
 import { doc, getDoc, updateDoc, increment, setDoc } from 'firebase/firestore';
 import { FontAwesome } from '@expo/vector-icons';
