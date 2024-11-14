@@ -12,75 +12,75 @@ interface TrackCardProps {
 
 const TrackCard: React.FC<TrackCardProps> = ({ track }) => {
     const { session } = useSession();
-    const [rating, setRating] = useState<number | null>(null);
-    const [averageRating, setAverageRating] = useState<number | null>(null);
+    // const [rating, setRating] = useState<number | null>(null);
+    // const [averageRating, setAverageRating] = useState<number | null>(null);
     const [ratingsCount, setRatingsCount] = useState<number>(0);
 
     // Fetch rating data from Firestore
-    useEffect(() => {
-        const fetchRating = async () => {
-            try {
-                const docRef = doc(db, 'ratings', track.id);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    setAverageRating(data.averageRating);
-                    setRatingsCount(data.ratingsCount);
-                    console.log('Fetched rating:', data);
-                } else {
-                    console.log('No document found for this track.');
-                }
-            } catch (error) {
-                console.error('Error fetching rating:', error);
-            }
-        };
-        fetchRating();
-    }, [track.id]);
+    // useEffect(() => {
+    //     const fetchRating = async () => {
+    //         try {
+    //             const docRef = doc(db, 'ratings', track.id);
+    //             const docSnap = await getDoc(docRef);
+    //             if (docSnap.exists()) {
+    //                 const data = docSnap.data();
+    //                 setAverageRating(data.averageRating);
+    //                 setRatingsCount(data.ratingsCount);
+    //                 console.log('Fetched rating:', data);
+    //             } else {
+    //                 console.log('No document found for this track.');
+    //             }
+    //         } catch (error) {
+    //             console.error('Error fetching rating:', error);
+    //         }
+    //     };
+    //     fetchRating();
+    // }, [track.id]);
 
-    // Submit rating to Firestore
-    const submitRating = async (userRating: number) => {
-        if (!session) {
-            alert('Please log in to rate this track.');
-            return;
-        }
+    // // Submit rating to Firestore
+    // const submitRating = async (userRating: number) => {
+    //     if (!session) {
+    //         alert('Please log in to rate this track.');
+    //         return;
+    //     }
 
-        setRating(userRating);
+    //     setRating(userRating);
 
-        try {
-            const docRef = doc(db, 'ratings', track.id);
-            const docSnap = await getDoc(docRef);
+    //     try {
+    //         const docRef = doc(db, 'ratings', track.id);
+    //         const docSnap = await getDoc(docRef);
 
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                const newAverage =
-                    (data.averageRating * data.ratingsCount + userRating) /
-                    (data.ratingsCount + 1);
+    //         if (docSnap.exists()) {
+    //             const data = docSnap.data();
+    //             const newAverage =
+    //                 (data.averageRating * data.ratingsCount + userRating) /
+    //                 (data.ratingsCount + 1);
 
-                await updateDoc(docRef, {
-                    averageRating: newAverage,
-                    ratingsCount: increment(1),
-                });
-                setAverageRating(newAverage);
-                setRatingsCount((prev) => prev + 1);
-                console.log(
-                    'Updated rating:',
-                    newAverage,
-                    'Count:',
-                    ratingsCount + 1
-                );
-            } else {
-                await setDoc(docRef, {
-                    averageRating: userRating,
-                    ratingsCount: 1,
-                });
-                setAverageRating(userRating);
-                setRatingsCount(1);
-                console.log('New rating created:', userRating);
-            }
-        } catch (error) {
-            console.error('Error submitting rating:', error);
-        }
-    };
+    //             await updateDoc(docRef, {
+    //                 averageRating: newAverage,
+    //                 ratingsCount: increment(1),
+    //             });
+    //             setAverageRating(newAverage);
+    //             setRatingsCount((prev) => prev + 1);
+    //             console.log(
+    //                 'Updated rating:',
+    //                 newAverage,
+    //                 'Count:',
+    //                 ratingsCount + 1
+    //             );
+    //         } else {
+    //             await setDoc(docRef, {
+    //                 averageRating: userRating,
+    //                 ratingsCount: 1,
+    //             });
+    //             setAverageRating(userRating);
+    //             setRatingsCount(1);
+    //             console.log('New rating created:', userRating);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error submitting rating:', error);
+    //     }
+    // };
 
     return (
         <TouchableOpacity className="mr-4 w-36">
