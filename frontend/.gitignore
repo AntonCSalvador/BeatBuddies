@@ -20,6 +20,7 @@ ios/
 android/
 
 frontend/screens/spotify.tsx
+frontend/screens/spotify.ts
 
 screens/spotify.tsx
 screens/spotify.ts

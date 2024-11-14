@@ -1,2 +1,0 @@
-export const SPOTIFY_CLIENT_ID="260fce7318cc4b57abeaa8fc390e1593"
-export const SPOTIFY_CLIENT_SECRET="8a1c8f2babd04288887e951754bf2e73"
