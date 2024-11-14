@@ -1,22 +1,8 @@
-const { getDefaultConfig } = require('expo/metro-config');
+module.exports = function (api) {
+  api.cache(true);
 
-module.exports = (() => {
-  const config = getDefaultConfig(__dirname);
-
-  // Enable CJS extension support for Expo Router
-  config.resolver.sourceExts = [
-    ...config.resolver.sourceExts,
-    'cjs',
-  ];
-
-  // SVG transformer configuration (if applicable)
-  config.transformer = {
-    ...config.transformer,
-    babelTransformerPath: require.resolve('react-native-svg-transformer'),
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: ["nativewind/babel"],
   };
-
-  config.resolver.assetExts = config.resolver.assetExts.filter(ext => ext !== 'svg');
-  config.resolver.sourceExts = [...config.resolver.sourceExts, 'svg'];
-
-  return config;
-})();
+};
