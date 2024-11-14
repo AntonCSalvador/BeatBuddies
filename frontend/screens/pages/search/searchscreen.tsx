@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Image, ScrollView } from 'react-native';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { Audio } from 'expo-av';
+import { useRouter } from 'expo-router';
+import { Pressable } from 'react-native'; // Add this import
 
 // Define the type for the track data, including album images
 interface Track {
@@ -70,6 +72,7 @@ export default function SearchScreen() {
     const [offset, setOffset] = useState(0); // Pagination offset
     const [hasMore, setHasMore] = useState(true); // Flag to check if more tracks can be loaded
     const [isLoading, setIsLoading] = useState(false); // Flag to prevent duplicate requests
+    const router = useRouter();
 
     useEffect(() => {
         // Set audio mode for playback
@@ -186,9 +189,10 @@ export default function SearchScreen() {
 
             {/* List of tracks */}
             {tracks.map((track) => (
-                <View 
+                <Pressable 
                     key={track.id} 
                     className="flex-row items-center mt-4 p-3 bg-neutral-200 rounded-lg"
+                    onPress={() => router.push(`/(pages)/search/${track.id}`)}
                 >
                     {/* Album Cover */}
                     {track.albumCover ? (
@@ -223,7 +227,7 @@ export default function SearchScreen() {
                             onPress={() => playPreview(track.previewUrl!)}
                         />
                     )}
-                </View>
+                </Pressable>
             ))}
 
             {/* Loading indicator */}
