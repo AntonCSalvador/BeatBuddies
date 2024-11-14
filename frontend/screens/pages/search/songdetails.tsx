@@ -145,7 +145,7 @@ export default function SongDetails({ songId }: SongDetailsProps) {
 
                 {/* Submit Button */}
                 <TouchableOpacity onPress={() => console.log("hello")} className="ml-4">
-                    <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
+                    <Ionicons name="send-outline" size={32} color="#4CAF50" />
                 </TouchableOpacity>
             </View>
             {track.previewUrl ? (
