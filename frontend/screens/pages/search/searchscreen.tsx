@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, Image, ScrollView } from 'react-native';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { Audio } from 'expo-av';
 import { useRouter, useFocusEffect } from 'expo-router'; // Updated import
-import { Pressable } from 'react-native'; 
+import { Pressable } from 'react-native';
 
 interface Track {
     id: string;
@@ -30,7 +30,11 @@ async function getAccessToken() {
     const data = await response.json();
     return data.access_token;
 }
-async function searchTrackByName(trackName: string, offset = 0): Promise<Track[]> {
+
+async function searchTrackByName(
+    trackName: string,
+    offset = 0
+): Promise<Track[]> {
     const token = await getAccessToken();
     const response = await fetch(
         `https://api.spotify.com/v1/search?q=${encodeURIComponent(trackName)}&type=track&limit=5&offset=${offset}`,
@@ -155,8 +159,12 @@ export default function SearchScreen() {
         <ScrollView
             contentContainerStyle={{ padding: 16 }}
             onScroll={({ nativeEvent }) => {
-                const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-                if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
+                const { layoutMeasurement, contentOffset, contentSize } =
+                    nativeEvent;
+                if (
+                    layoutMeasurement.height + contentOffset.y >=
+                    contentSize.height - 20
+                ) {
                     fetchTracks(searchText, offset);
                 }
             }}
@@ -176,7 +184,9 @@ export default function SearchScreen() {
             />
             <Button title="Search" onPress={handleSearch} />
 
-            {error && <Text style={{ color: 'red', marginTop: 16 }}>{error}</Text>}
+            {error && (
+                <Text style={{ color: 'red', marginTop: 16 }}>{error}</Text>
+            )}
 
             {tracks.map((track) => (
                 <Pressable
@@ -196,11 +206,15 @@ export default function SearchScreen() {
                     )}
 
                     <View className="flex-1">
-                        <Text className="text-black font-bold text-lg">{track.name}</Text>
+                        <Text className="text-black font-bold text-lg">
+                            {track.name}
+                        </Text>
                         <Text className="text-neutral-600 text-sm mt-1">
                             {track.album} • {new Date().getFullYear()}
                         </Text>
-                        <Text className="text-neutral-500 text-sm mt-1">{track.artist}</Text>
+                        <Text className="text-neutral-500 text-sm mt-1">
+                            {track.artist}
+                        </Text>
                     </View>
 
                     {track.previewUrl && (

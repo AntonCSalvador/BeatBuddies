@@ -5,6 +5,7 @@ import { useSession } from '@/contexts/SessionContext';
 import { doc, getDoc, updateDoc, increment, setDoc } from 'firebase/firestore';
 import { FontAwesome } from '@expo/vector-icons';
 import Track from '@/types/track';
+import { useRouter } from 'expo-router';
 
 interface TrackCardProps {
     track: Track;
@@ -12,6 +13,7 @@ interface TrackCardProps {
 
 const TrackCard: React.FC<TrackCardProps> = ({ track }) => {
     const { session } = useSession();
+    const router = useRouter();
     // const [rating, setRating] = useState<number | null>(null);
     // const [averageRating, setAverageRating] = useState<number | null>(null);
     const [ratingsCount, setRatingsCount] = useState<number>(0);
@@ -83,7 +85,10 @@ const TrackCard: React.FC<TrackCardProps> = ({ track }) => {
     // };
 
     return (
-        <TouchableOpacity className="mr-4 w-36">
+        <TouchableOpacity
+            className="mr-4 w-36"
+            onPress={() => router.push(`/(pages)/search/${track.id}`)}
+        >
             <View className="w-full flex justify-center items-center">
                 <Image
                     source={{ uri: track.album.images[0]?.url }}

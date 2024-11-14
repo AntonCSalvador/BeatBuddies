@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Button, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {
+    View,
+    Text,
+    Image,
+    Button,
+    StyleSheet,
+    ActivityIndicator,
+    TouchableOpacity,
+} from 'react-native';
 import { Audio } from 'expo-av';
 import { useNavigation, useFocusEffect } from '@react-navigation/native'; // Updated import
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
+import { useRouter } from 'expo-router';
 
 // Define the type for the track data
 interface Track {
@@ -27,17 +36,21 @@ export default function SongDetails({ songId }: SongDetailsProps) {
     const [isPlaying, setIsPlaying] = useState(false); // To track play/pause status
     const [rating, setRating] = useState<number>(0); // Updated state for half-star rating
     const navigation = useNavigation();
+    const router = useRouter()
 
     useEffect(() => {
         async function fetchTrackDetails() {
             try {
                 setLoading(true);
                 const token = await getAccessToken();
-                const response = await fetch(`https://api.spotify.com/v1/tracks/${songId}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response = await fetch(
+                    `https://api.spotify.com/v1/tracks/${songId}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
 
                 if (!response.ok) {
                     throw new Error('Failed to fetch track details');
@@ -142,7 +155,10 @@ export default function SongDetails({ songId }: SongDetailsProps) {
     return (
         <View style={styles.container}>
             {/* Custom Back Button */}
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+            <TouchableOpacity
+                onPress={() => router.back()}
+                style={styles.backButton}
+            >
                 <Ionicons name="arrow-back" size={24} color="#333" />
             </TouchableOpacity>
 
@@ -154,16 +170,19 @@ export default function SongDetails({ songId }: SongDetailsProps) {
             {/* Half-Star Rating */}
             <View style={styles.ratingContainer}>
                 {[1, 2, 3, 4, 5].map((star) => {
-                    let iconName = "star-outline";
+                    let iconName = 'star-outline';
 
                     if (rating >= star) {
-                        iconName = "star";
+                        iconName = 'star';
                     } else if (rating === star - 0.5) {
-                        iconName = "star-half";
+                        iconName = 'star-half';
                     }
 
                     return (
-                        <TouchableOpacity key={star} onPress={() => handleStarPress(star)}>
+                        <TouchableOpacity
+                            key={star}
+                            onPress={() => handleStarPress(star)}
+                        >
                             <Ionicons
                                 name={iconName}
                                 size={32}
@@ -174,13 +193,19 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 })}
 
                 {/* Submit Button */}
-                <TouchableOpacity onPress={() => console.log("Rating submitted")} className="ml-4">
+                <TouchableOpacity
+                    onPress={() => console.log('Rating submitted')}
+                    className="ml-4"
+                >
                     <Ionicons name="send-outline" size={32} color="#4CAF50" />
                 </TouchableOpacity>
             </View>
 
             {track.previewUrl ? (
-                <Button title={isPlaying ? "Pause Preview" : "Play Preview"} onPress={togglePlayPause} />
+                <Button
+                    title={isPlaying ? 'Pause Preview' : 'Play Preview'}
+                    onPress={togglePlayPause}
+                />
             ) : (
                 <Text style={styles.noPreview}>No Preview Available</Text>
             )}
