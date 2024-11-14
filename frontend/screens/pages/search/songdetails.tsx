@@ -193,10 +193,7 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 })}
 
                 {/* Submit Button */}
-                <TouchableOpacity
-                    onPress={() => console.log('Rating submitted')}
-                    className="ml-4"
-                >
+                <TouchableOpacity onPress={() => console.log("Rating submitted: " + rating)} className="ml-4">
                     <Ionicons name="send-outline" size={32} color="#4CAF50" />
                 </TouchableOpacity>
             </View>

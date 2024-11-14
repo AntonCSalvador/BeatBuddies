@@ -206,10 +206,8 @@ export default function SearchScreen() {
                     )}
 
                     <View className="flex-1">
-                        <Text className="text-black font-bold text-lg">
-                            {track.name}
-                        </Text>
-                        <Text className="text-neutral-600 text-sm mt-1">
+                        <Text className="text-black font-bold text-lg" numberOfLines={1}>{track.name}</Text>
+                        <Text className="text-neutral-600 text-sm mt-1" numberOfLines={1}>
                             {track.album} • {new Date().getFullYear()}
                         </Text>
                         <Text className="text-neutral-500 text-sm mt-1">
