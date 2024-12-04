@@ -39,7 +39,6 @@ async function getAccessToken(): Promise<string | null> {
 async function getPlaylistTracks(playlistId: string, cache: { [key: string]: Track[] }): Promise<Track[]> {
     if (cache[playlistId]) {
         // Use cached tracks
-        console.log(`Using cached tracks for playlist ${playlistId}`);
         return cache[playlistId];
     }
 
@@ -83,13 +82,11 @@ export default function HomeScreen() {
     useEffect(() => {
         playlists.forEach(({ id }) => {
             getPlaylistTracks(id, cache.current).then((tracks) => {
-                console.log(`Tracks for playlist ${id}:`, tracks); // Debug log for tracks
                 setPlaylistTracks((prev) => ({ ...prev, [id]: tracks }));
             });
         });
     }, []);
 
-    console.log('Playlists:', playlists); // Debug log for playlists
 
     return (
         <ScrollView className="bg-gradient-to-b from-blue-900 via-black to-black">
