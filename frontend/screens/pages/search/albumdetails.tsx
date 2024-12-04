@@ -40,47 +40,48 @@ export default function SongDetails({ songId }: SongDetailsProps) {
     const router = useRouter();
 
     useEffect(() => {
-        async function fetchTrackDetails() {
+        async function fetchAlbumDetails() {
             try {
                 setLoading(true);
                 const token = await getAccessToken();
                 const response = await fetch(
-                    `https://api.spotify.com/v1/tracks/${songId}`,
+                    `https://api.spotify.com/v1/albums/${songId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
                     }
                 );
-
+    
                 if (!response.ok) {
-                    throw new Error('Failed to fetch track details');
+                    throw new Error('Failed to fetch album details');
                 }
-
+    
                 const data = await response.json();
                 setTrack({
                     id: data.id,
                     name: data.name,
-                    artist: data.artists[0].name,
-                    album: data.album.name,
-                    albumCover: data.album.images[0]?.url || '',
-                    previewUrl: data.preview_url,
+                    artist: data.artists.map((artist: any) => artist.name).join(', '), // Handle multiple artists
+                    album: data.name,
+                    albumCover: data.images[0]?.url || '',
+                    previewUrl: null, // Albums don't have a preview URL
                 });
             } catch (error) {
-                setError('Failed to load track details');
+                setError('Failed to load album details');
             } finally {
                 setLoading(false);
             }
         }
-
-        fetchTrackDetails();
-
+    
+        fetchAlbumDetails();
+    
         return () => {
             if (sound) {
                 sound.unloadAsync(); // Ensure sound is stopped when component unmounts
             }
         };
     }, [songId]);
+    
 
     useFocusEffect(
         React.useCallback(() => {

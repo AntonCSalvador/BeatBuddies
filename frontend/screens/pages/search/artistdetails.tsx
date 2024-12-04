@@ -40,47 +40,50 @@ export default function SongDetails({ songId }: SongDetailsProps) {
     const router = useRouter();
 
     useEffect(() => {
-        async function fetchTrackDetails() {
+        async function fetchArtistDetails() {
             try {
                 setLoading(true);
                 const token = await getAccessToken();
                 const response = await fetch(
-                    `https://api.spotify.com/v1/tracks/${songId}`,
+                    `https://api.spotify.com/v1/artists/${songId}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
                     }
                 );
-
+    
                 if (!response.ok) {
-                    throw new Error('Failed to fetch track details');
+                    throw new Error('Failed to fetch artist details');
                 }
-
+    
                 const data = await response.json();
+    
+                // Update the state with artist data
                 setTrack({
                     id: data.id,
-                    name: data.name,
-                    artist: data.artists[0].name,
-                    album: data.album.name,
-                    albumCover: data.album.images[0]?.url || '',
-                    previewUrl: data.preview_url,
+                    name: data.name, // Artist's name
+                    artist: data.name, // Set to the artist's name
+                    album: '', // No album directly available in artist data
+                    albumCover: data.images[0]?.url || '', // Use the first image for the artist
+                    previewUrl: null, // No preview URL for artists
                 });
             } catch (error) {
-                setError('Failed to load track details');
+                setError('Failed to load artist details');
             } finally {
                 setLoading(false);
             }
         }
-
-        fetchTrackDetails();
-
+    
+        fetchArtistDetails();
+    
         return () => {
             if (sound) {
                 sound.unloadAsync(); // Ensure sound is stopped when component unmounts
             }
         };
     }, [songId]);
+    
 
     useFocusEffect(
         React.useCallback(() => {
@@ -188,8 +191,8 @@ export default function SongDetails({ songId }: SongDetailsProps) {
             <View className="items-center mt-12">
                 <Image source={{ uri: track.albumCover }} className="w-52 h-52 rounded-lg mb-4" />
                 <Text className="text-2xl font-bold text-black text-center mb-2">{track.name}</Text>
-                <Text className="text-lg text-gray-600 mb-1">Artist: {track.artist}</Text>
-                <Text className="text-md text-gray-500 mb-4">Album: {track.album}</Text>
+                {/* <Text className="text-lg text-gray-600 mb-1">Artist: {track.artist}</Text> */}
+                {/* <Text className="text-md text-gray-500 mb-4">Album: {track.album}</Text> */}
 
                 {/* Half-Star Rating */}
                 <View className="flex-row items-center mb-4">
@@ -236,25 +239,6 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                     <Ionicons name="send-outline" size={24} color="#fff" />
                     <Text className="text-white text-lg ml-2">Submit</Text>
                 </TouchableOpacity>
-
-                {/* Play/Pause Button */}
-                {track.previewUrl ? (
-                    <TouchableOpacity
-                        onPress={togglePlayPause}
-                        className="flex-row items-center justify-center bg-green-500 py-3 px-5 rounded-lg"
-                    >
-                        <Ionicons
-                            name={isPlaying ? 'pause' : 'play'}
-                            size={24}
-                            color="#fff"
-                        />
-                        <Text className="text-white text-lg ml-2">
-                            {isPlaying ? 'Pause Preview' : 'Play Preview'}
-                        </Text>
-                    </TouchableOpacity>
-                ) : (
-                    <Text className="text-gray-500 mt-2">No Preview Available</Text>
-                )}
             </View>
         </View>
         </TouchableWithoutFeedback>

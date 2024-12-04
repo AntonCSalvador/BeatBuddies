@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, Image, ScrollView, Pressable, TouchableOpacity } from 'react-native';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { Audio } from 'expo-av';
-import { useRouter, useFocusEffect } from 'expo-router';
+import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 
 interface Track {
     id: string;
@@ -46,7 +46,6 @@ async function searchByType(
     );
 
     const searchData = await response.json();
-    // Adjust parsing based on type
     let items = [];
     if (type === 'track' && searchData.tracks) {
         items = searchData.tracks.items;
@@ -56,7 +55,6 @@ async function searchByType(
         items = searchData.artists.items;
     }
 
-    // Map the items to the Track interface
     return items.map((item: any) => {
         if (type === 'track') {
             return {
@@ -74,16 +72,16 @@ async function searchByType(
                 artist: item.artists[0].name,
                 album: item.name,
                 albumCover: item.images[0]?.url || '',
-                previewUrl: null, // Albums don't have preview URLs
+                previewUrl: null,
             };
         } else if (type === 'artist') {
             return {
                 id: item.id,
                 name: item.name,
                 artist: item.name,
-                album: '', // Artists don't have albums directly
+                album: '',
                 albumCover: item.images[0]?.url || '',
-                previewUrl: null, // Artists don't have preview URLs
+                previewUrl: null,
             };
         }
     });
@@ -92,38 +90,10 @@ async function searchByType(
 export default function SearchScreen() {
     const [searchText, setSearchText] = useState('');
     const [tracks, setTracks] = useState<Track[]>([]);
-    const [error, setError] = useState<string | null>(null);
-    const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedTab, setSelectedTab] = useState<'track' | 'album' | 'artist'>('track'); // New state variable
-    const router = useRouter();
-
-    useEffect(() => {
-        Audio.setAudioModeAsync({
-            allowsRecordingIOS: false,
-            playsInSilentModeIOS: true,
-            staysActiveInBackground: true,
-        });
-
-        return () => {
-            if (sound) {
-                sound.unloadAsync();
-            }
-        };
-    }, [sound]);
-
-    useFocusEffect(
-        React.useCallback(() => {
-            return () => {
-                if (sound) {
-                    sound.unloadAsync();
-                    setSound(null);
-                }
-            };
-        }, [sound])
-    );
+    const [selectedTab, setSelectedTab] = useState<'track' | 'album' | 'artist'>('track');
 
     const fetchTracks = async (query: string, newOffset: number) => {
         if (isLoading || !hasMore) return;
@@ -138,43 +108,25 @@ export default function SearchScreen() {
                 setHasMore(false);
             }
         } catch (err) {
-            setError('An error occurred while fetching more results');
+            console.error('Error fetching results:', err);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleSearch = async () => {
-        if (sound) {
-            await sound.unloadAsync();
-            setSound(null);
-        }
-
+    const handleSearch = () => {
         setTracks([]);
         setOffset(0);
         setHasMore(true);
-        setError(null);
         fetchTracks(searchText, 0);
     };
 
-    const playPreview = async (previewUrl: string) => {
-        if (sound) {
-            await sound.unloadAsync();
-            setSound(null);
-        }
-
-        try {
-            const { sound: newSound } = await Audio.Sound.createAsync(
-                { uri: previewUrl },
-                { shouldPlay: true }
-            );
-            setSound(newSound);
-        } catch (error) {
-            console.error('Error playing sound:', error);
-        }
+    const handleAdd = (track: Track) => {
+        console.log('Success:', track.name, ' id: ', track.id);
     };
 
     return (
+        <SafeAreaViewAll color="white">
         <ScrollView
             contentContainerStyle={{ padding: 16 }}
             onScroll={({ nativeEvent }) => {
@@ -193,10 +145,10 @@ export default function SearchScreen() {
                     <TouchableOpacity
                         key={tab}
                         onPress={() => {
-                            setSelectedTab(tab as 'track' | 'album' | 'artist')
-                            setTracks([]); // Clear the displayed tracks
-                            setOffset(0); // Reset offset for pagination
-                            setHasMore(true); // Reset pagination flag
+                            setSelectedTab(tab as 'track' | 'album' | 'artist');
+                            setTracks([]);
+                            setOffset(0);
+                            setHasMore(true);
                         }}
                         style={{
                             flex: 1,
@@ -227,15 +179,17 @@ export default function SearchScreen() {
             />
             <Button title="Search" onPress={handleSearch} />
 
-            {error && (
-                <Text style={{ color: 'red', marginTop: 16 }}>{error}</Text>
-            )}
-
             {tracks.map((track) => (
-                <Pressable
+                <View
                     key={track.id}
-                    style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, padding: 12, backgroundColor: '#e0e0e0', borderRadius: 8 }}
-                    onPress={() => router.push(`/(pages)/search/${track.id}`)}
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 16,
+                        padding: 12,
+                        backgroundColor: '#e0e0e0',
+                        borderRadius: 8,
+                    }}
                 >
                     {track.albumCover ? (
                         <Image
@@ -243,32 +197,53 @@ export default function SearchScreen() {
                             style={{ width: 80, height: 80, borderRadius: 8, marginRight: 16 }}
                         />
                     ) : (
-                        <View style={{ width: 80, height: 80, backgroundColor: '#ccc', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginRight: 16 }}>
+                        <View
+                            style={{
+                                width: 80,
+                                height: 80,
+                                backgroundColor: '#ccc',
+                                borderRadius: 8,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginRight: 16,
+                            }}
+                        >
                             <Text style={{ color: '#666' }}>No Cover</Text>
                         </View>
                     )}
 
                     <View style={{ flex: 1 }}>
-                        <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 18 }} numberOfLines={1}>{track.name}</Text>
+                        <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 18 }} numberOfLines={1}>
+                            {track.name}
+                        </Text>
                         {selectedTab !== 'artist' && (
                             <Text style={{ color: '#666', fontSize: 14, marginTop: 4 }} numberOfLines={1}>
                                 {track.album}
                             </Text>
                         )}
-                        <Text style={{ color: '#999', fontSize: 14, marginTop: 4 }} numberOfLines={1}>{track.artist}</Text>
+                        <Text style={{ color: '#999', fontSize: 14, marginTop: 4 }} numberOfLines={1}>
+                            {track.artist}
+                        </Text>
                     </View>
 
-                    {track.previewUrl && (
-                        <Button
-                            title="Play"
-                            color="#007BFF"
-                            onPress={() => playPreview(track.previewUrl!)}
-                        />
-                    )}
-                </Pressable>
+                    {/* Add Button */}
+                    <TouchableOpacity
+                        onPress={() => handleAdd(track)}
+                        style={{
+                            padding: 10,
+                            backgroundColor: '#007BFF',
+                            borderRadius: 8,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>+</Text>
+                    </TouchableOpacity>
+                </View>
             ))}
 
             {isLoading && <Text>Loading more...</Text>}
         </ScrollView>
+        </SafeAreaViewAll>
     );
 }
