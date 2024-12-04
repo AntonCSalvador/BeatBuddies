@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 
 // TypeScript interface for user data
-interface UserItemData {
+export  interface UserItemData {
     rating: number;
     review: string;
     createdAt?: any;
