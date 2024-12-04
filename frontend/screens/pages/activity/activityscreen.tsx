@@ -13,7 +13,7 @@ const mockActivities: Activity[] = [
         action: 'reviewed',
         movieTitle: 'Inception',
         review: 'A mind-bending masterpiece!',
-        rating: 5,
+        rating: 4.5,
         timestamp: '2024-12-03T15:30:00Z',
         posterImage: 'https://via.placeholder.com/300',
     },
