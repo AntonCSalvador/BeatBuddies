@@ -4,150 +4,70 @@ import { auth, db } from '@/firebase/firebaseConfig';
 import {
   collection,
   doc,
-  addDoc,
-  getDoc,
-  getDocs,
   setDoc,
+  getDocs,
   serverTimestamp,
 } from 'firebase/firestore';
 
-// Type definitions (optional but recommended)
-interface Album {
-  id?: string;
-}
-
-interface Song {
-  id?: string;
-}
-
-interface Artist {
-  id?: string;
+// TypeScript interface for user data
+interface UserItemData {
+  rating: number;
+  review: string;
+  createdAt?: any;
 }
 
 /**
- * Adds an album to the user's albums subcollection
+ * Adds an item (album, song, or artist) to the user's subcollection.
+ *
+ * @param collectionName - The name of the subcollection ('albums', 'songs', 'artists')
+ * @param itemId - The ID of the item (from Spotify API)
+ * @param userItemData - The user's rating and review for the item
  */
-export const addAlbumToUser = async (albumData: Album) => {
+export const addItemToUser = async (
+  collectionName: 'albums' | 'songs' | 'artists',
+  itemId: string,
+  userItemData: UserItemData
+) => {
   try {
     const userId = auth.currentUser?.uid;
     if (!userId) throw new Error('User not authenticated');
 
-    const albumsRef = collection(db, `users/${userId}/albums`);
-    await addDoc(albumsRef, {
-      ...albumData,
+    const userItemRef = doc(db, `users/${userId}/${collectionName}`, itemId);
+    await setDoc(userItemRef, {
+      ...userItemData,
       createdAt: serverTimestamp(),
     });
+    console.log(`Item added to user's ${collectionName} collection`);
   } catch (error) {
-    console.error('Error adding album to user:', error);
+    console.error(`Error adding item to user's ${collectionName}:`, error);
     throw error;
   }
 };
 
 /**
- * Retrieves all albums from the user's albums subcollection
+ * Retrieves all items from the user's subcollection.
+ *
+ * @param collectionName - The name of the subcollection ('albums', 'songs', 'artists')
+ * @returns An array of items with their IDs and user-specific data
  */
-export const getUserAlbums = async (): Promise<Album[]> => {
+export const getUserItems = async (
+  collectionName: 'albums' | 'songs' | 'artists'
+): Promise<({ itemId: string } & UserItemData)[]> => {
   try {
     const userId = auth.currentUser?.uid;
     if (!userId) throw new Error('User not authenticated');
 
-    const albumsRef = collection(db, `users/${userId}/albums`);
-    const querySnapshot = await getDocs(albumsRef);
+    const userItemsRef = collection(db, `users/${userId}/${collectionName}`);
+    const userItemsSnapshot = await getDocs(userItemsRef);
 
-    const albums = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Album[];
+    const items = userItemsSnapshot.docs.map((doc) => ({
+      itemId: doc.id,
+      ...(doc.data() as UserItemData),
+    }));
 
-    return albums;
+    return items;
   } catch (error) {
-    console.error('Error fetching user albums:', error);
-    throw error;
-  }
-};
-
-// Repeat similar patterns for songs and artists
-
-/**
- * Adds a song to the user's songs subcollection
- */
-export const addSongToUser = async (songData: Song) => {
-  try {
-    const userId = auth.currentUser?.uid;
-    if (!userId) throw new Error('User not authenticated');
-
-    const songsRef = collection(db, `users/${userId}/songs`);
-    await addDoc(songsRef, {
-      ...songData,
-      createdAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error('Error adding song to user:', error);
-    throw error;
-  }
-};
-
-/**
- * Retrieves all songs from the user's songs subcollection
- */
-export const getUserSongs = async (): Promise<Song[]> => {
-  try {
-    const userId = auth.currentUser?.uid;
-    if (!userId) throw new Error('User not authenticated');
-
-    const songsRef = collection(db, `users/${userId}/songs`);
-    const querySnapshot = await getDocs(songsRef);
-
-    const songs = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Song[];
-
-    return songs;
-  } catch (error) {
-    console.error('Error fetching user songs:', error);
-    throw error;
-  }
-};
-
-/**
- * Adds an artist to the user's artists subcollection
- */
-export const addArtistToUser = async (artistData: Artist) => {
-  try {
-    const userId = auth.currentUser?.uid;
-    if (!userId) throw new Error('User not authenticated');
-
-    const artistsRef = collection(db, `users/${userId}/artists`);
-    await addDoc(artistsRef, {
-      ...artistData,
-      createdAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error('Error adding artist to user:', error);
-    throw error;
-  }
-};
-
-/**
- * Retrieves all artists from the user's artists subcollection
- */
-export const getUserArtists = async (): Promise<Artist[]> => {
-  try {
-    const userId = auth.currentUser?.uid;
-    if (!userId) throw new Error('User not authenticated');
-
-    const artistsRef = collection(db, `users/${userId}/artists`);
-    const querySnapshot = await getDocs(artistsRef);
-
-    const artists = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as Artist[];
-
-    return artists;
-  } catch (error) {
-    console.error('Error fetching user artists:', error);
+    console.error(`Error fetching user's ${collectionName}:`, error);
     throw error;
   }
 };
