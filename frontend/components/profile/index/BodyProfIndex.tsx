@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, ScrollView, Alert } from 'react-native';
+import { View, Text, Image, ScrollView, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinkOptions from './LinkOptions'; // Import your LinkOptions component
@@ -10,10 +10,10 @@ export default function ProfilePage() {
 
     // Dummy data for favorite albums
     const favoriteAlbums = [
-        { id: '1', coverUrl: 'https://via.placeholder.com/150', title: 'Album 1' },
-        { id: '2', coverUrl: 'https://via.placeholder.com/150', title: 'Album 2' },
-        { id: '3', coverUrl: 'https://via.placeholder.com/150', title: 'Album 3' },
-        { id: '4', coverUrl: 'https://via.placeholder.com/150', title: 'Album 4' },
+        { id: '1', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png', title: 'Album 1' },
+        { id: '2', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png', title: 'Album 2' },
+        { id: '3', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png', title: 'Album 3' },
+        { id: '4', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/d/dc/Clairo_-_Charm.png', title: 'Album 4' },
         // Add more albums as needed
     ];
 
@@ -21,24 +21,29 @@ export default function ProfilePage() {
     const recentActivity = [
         {
             id: '1',
-            coverUrl: 'https://via.placeholder.com/100',
-            title: 'Album 5',
+            type: 'song', // Can be 'song', 'album', or 'artist'
+            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png',
+            songTitle: 'Ceilings',
+            artistName: 'Beabadoobee',
             rating: 4.5,
         },
         {
             id: '2',
-            coverUrl: 'https://via.placeholder.com/100',
-            title: 'Album 6',
+            type: 'album',
+            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png',
+            albumTitle: 'Flower Boy',
+            artistName: 'Tyler, the Creator',
             rating: 5,
         },
         {
             id: '3',
-            coverUrl: 'https://via.placeholder.com/100',
-            title: 'Album 7',
-            rating: 3,
+            type: 'artist',
+            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png',
+            artistName: 'Coldplay',
+            rating: 4,
         },
-        // Add more activity as needed
     ];
+    
 
     const confirmSignOut = () => {
         Alert.alert(
@@ -86,6 +91,7 @@ export default function ProfilePage() {
             </View>
 
             {/* Recent Activity Section */}
+            {/* Recent Activity Section */}
             <View className="p-4">
                 <Text className="text-xl font-bold mb-2">Recent Activity</Text>
                 {recentActivity.map((activity) => {
@@ -93,19 +99,46 @@ export default function ProfilePage() {
                     const hasHalfStar = activity.rating % 1 !== 0;
 
                     return (
-                        <View
+                        <Pressable
                             key={activity.id}
-                            className="flex-row items-center mb-4"
+                            className="flex-row items-start mb-4 bg-gray-100 p-3 rounded-lg"
+                            onPress={() => console.log(`Pressed activity ID: ${activity.id}`)} //okay here just do router.push(`/(pages)/search/${activity.id}`); something like that instead of the console.log
                         >
+                            {/* Cover Image */}
                             <Image
                                 source={{ uri: activity.coverUrl }}
-                                className="w-16 h-16 mr-4"
+                                className="w-16 h-16 mr-4 rounded-md"
                             />
                             <View className="flex-1">
-                                <Text className="text-lg font-semibold">
-                                    {activity.title}
-                                </Text>
-                                <View className="flex-row items-center">
+                                {/* Title and Details */}
+                                {activity.type === 'song' && (
+                                    <>
+                                        <Text className="text-lg font-semibold text-black">
+                                            {activity.songTitle}
+                                        </Text>
+                                        <Text className="text-sm text-gray-600">
+                                            by {activity.artistName}
+                                        </Text>
+                                    </>
+                                )}
+                                {activity.type === 'album' && (
+                                    <>
+                                        <Text className="text-lg font-semibold text-black">
+                                            {activity.albumTitle}
+                                        </Text>
+                                        <Text className="text-sm text-gray-600">
+                                            by {activity.artistName}
+                                        </Text>
+                                    </>
+                                )}
+                                {activity.type === 'artist' && (
+                                    <Text className="text-lg font-semibold text-black">
+                                        {activity.artistName}
+                                    </Text>
+                                )}
+
+                                {/* Rating */}
+                                <View className="flex-row items-center mt-2">
                                     {[...Array(fullStars)].map((_, index) => (
                                         <Ionicons
                                             key={`star-${activity.id}-${index}`}
@@ -115,11 +148,7 @@ export default function ProfilePage() {
                                         />
                                     ))}
                                     {hasHalfStar && (
-                                        <Ionicons
-                                            name="star-half"
-                                            size={16}
-                                            color="#FFD700"
-                                        />
+                                        <Ionicons name="star-half" size={16} color="#FFD700" />
                                     )}
                                     {[...Array(5 - Math.ceil(activity.rating))].map((_, index) => (
                                         <Ionicons
@@ -131,10 +160,11 @@ export default function ProfilePage() {
                                     ))}
                                 </View>
                             </View>
-                        </View>
+                        </Pressable>
                     );
                 })}
             </View>
+
 
             {/* Navigation Links (Using LinkOptions) */}
             {/* Profile Options */}
