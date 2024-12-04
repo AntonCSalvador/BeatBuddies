@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image, ScrollView, Pressable, TouchableOpacity } from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    Button,
+    Image,
+    ScrollView,
+    Pressable,
+    TouchableOpacity,
+} from 'react-native';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { Audio } from 'expo-av';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -97,7 +106,9 @@ export default function SearchScreen() {
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedTab, setSelectedTab] = useState<'track' | 'album' | 'artist'>('track'); // New state variable
+    const [selectedTab, setSelectedTab] = useState<
+        'track' | 'album' | 'artist'
+    >('track'); // New state variable
     const router = useRouter();
 
     useEffect(() => {
@@ -178,14 +189,27 @@ export default function SearchScreen() {
         <ScrollView
             contentContainerStyle={{ padding: 16 }}
             onScroll={({ nativeEvent }) => {
-                const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-                if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
+                const { layoutMeasurement, contentOffset, contentSize } =
+                    nativeEvent;
+                if (
+                    layoutMeasurement.height + contentOffset.y >=
+                    contentSize.height - 20
+                ) {
                     fetchTracks(searchText, offset);
                 }
             }}
             scrollEventThrottle={16}
         >
-            <Text style={{ fontSize: 32, fontWeight: 'bold', color: 'black', marginBottom: 16 }}>Search</Text>
+            <Text
+                style={{
+                    fontSize: 32,
+                    fontWeight: 'bold',
+                    color: 'black',
+                    marginBottom: 16,
+                }}
+            >
+                Search
+            </Text>
 
             {/* Tab Selection */}
             <View style={{ flexDirection: 'row', marginBottom: 16 }}>
@@ -193,7 +217,7 @@ export default function SearchScreen() {
                     <TouchableOpacity
                         key={tab}
                         onPress={() => {
-                            setSelectedTab(tab as 'track' | 'album' | 'artist')
+                            setSelectedTab(tab as 'track' | 'album' | 'artist');
                             setTracks([]); // Clear the displayed tracks
                             setOffset(0); // Reset offset for pagination
                             setHasMore(true); // Reset pagination flag
@@ -201,12 +225,18 @@ export default function SearchScreen() {
                         style={{
                             flex: 1,
                             padding: 10,
-                            backgroundColor: selectedTab === tab ? '#007BFF' : '#f0f0f0',
+                            backgroundColor:
+                                selectedTab === tab ? '#007BFF' : '#f0f0f0',
                             borderRadius: 4,
                             marginHorizontal: 2,
                         }}
                     >
-                        <Text style={{ textAlign: 'center', color: selectedTab === tab ? '#fff' : '#000' }}>
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                color: selectedTab === tab ? '#fff' : '#000',
+                            }}
+                        >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}
                         </Text>
                     </TouchableOpacity>
@@ -234,28 +264,75 @@ export default function SearchScreen() {
             {tracks.map((track) => (
                 <Pressable
                     key={track.id}
-                    style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, padding: 12, backgroundColor: '#e0e0e0', borderRadius: 8 }}
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 16,
+                        padding: 12,
+                        backgroundColor: '#e0e0e0',
+                        borderRadius: 8,
+                    }}
                     onPress={() => router.push(`/(pages)/search/${track.id}`)}
                 >
                     {track.albumCover ? (
                         <Image
                             source={{ uri: track.albumCover }}
-                            style={{ width: 80, height: 80, borderRadius: 8, marginRight: 16 }}
+                            style={{
+                                width: 80,
+                                height: 80,
+                                borderRadius: 8,
+                                marginRight: 16,
+                            }}
                         />
                     ) : (
-                        <View style={{ width: 80, height: 80, backgroundColor: '#ccc', borderRadius: 8, justifyContent: 'center', alignItems: 'center', marginRight: 16 }}>
+                        <View
+                            style={{
+                                width: 80,
+                                height: 80,
+                                backgroundColor: '#ccc',
+                                borderRadius: 8,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginRight: 16,
+                            }}
+                        >
                             <Text style={{ color: '#666' }}>No Cover</Text>
                         </View>
                     )}
 
                     <View style={{ flex: 1 }}>
-                        <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 18 }} numberOfLines={1}>{track.name}</Text>
+                        <Text
+                            style={{
+                                color: 'black',
+                                fontWeight: 'bold',
+                                fontSize: 18,
+                            }}
+                            numberOfLines={1}
+                        >
+                            {track.name}
+                        </Text>
                         {selectedTab !== 'artist' && (
-                            <Text style={{ color: '#666', fontSize: 14, marginTop: 4 }} numberOfLines={1}>
+                            <Text
+                                style={{
+                                    color: '#666',
+                                    fontSize: 14,
+                                    marginTop: 4,
+                                }}
+                                numberOfLines={1}
+                            >
                                 {track.album}
                             </Text>
                         )}
-                        <Text style={{ color: '#999', fontSize: 14, marginTop: 4 }} numberOfLines={1}>{track.artist}</Text>
+                        <Text
+                            style={{
+                                color: '#999',
+                                fontSize: 14,
+                                marginTop: 4,
+                            }}
+                            numberOfLines={1}
+                        >
+                            {track.artist}
+                        </Text>
                     </View>
 
                     {track.previewUrl && (

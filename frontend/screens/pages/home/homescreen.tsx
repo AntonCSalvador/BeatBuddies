@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ScrollView, ImageBackground } from 'react-native';
+import {
+    View,
+    Text,
+    FlatList,
+    ScrollView,
+    ImageBackground,
+} from 'react-native';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import Track from '@/types/track';
 import TrackCard from '@/components/general/TrackCard';
@@ -25,7 +31,11 @@ async function getAccessToken(): Promise<string | null> {
             body: 'grant_type=client_credentials',
         });
         if (!response.ok) {
-            console.error('Failed to fetch access token:', response.status, await response.text());
+            console.error(
+                'Failed to fetch access token:',
+                response.status,
+                await response.text()
+            );
             return null;
         }
         const data = await response.json();
@@ -36,7 +46,10 @@ async function getAccessToken(): Promise<string | null> {
     }
 }
 
-async function getPlaylistTracks(playlistId: string, cache: { [key: string]: Track[] }): Promise<Track[]> {
+async function getPlaylistTracks(
+    playlistId: string,
+    cache: { [key: string]: Track[] }
+): Promise<Track[]> {
     if (cache[playlistId]) {
         // Use cached tracks
         // console.log(`Using cached tracks for playlist ${playlistId}`);
@@ -59,7 +72,11 @@ async function getPlaylistTracks(playlistId: string, cache: { [key: string]: Tra
             }
         );
         if (!response.ok) {
-            console.error('Failed to fetch playlist tracks:', response.status, await response.text());
+            console.error(
+                'Failed to fetch playlist tracks:',
+                response.status,
+                await response.text()
+            );
             return [];
         }
         const data = await response.json();
@@ -77,7 +94,9 @@ async function getPlaylistTracks(playlistId: string, cache: { [key: string]: Tra
 }
 
 export default function HomeScreen() {
-    const [playlistTracks, setPlaylistTracks] = useState<{ [key: string]: Track[] }>({});
+    const [playlistTracks, setPlaylistTracks] = useState<{
+        [key: string]: Track[];
+    }>({});
     const cache = React.useRef<{ [key: string]: Track[] }>({});
 
     useEffect(() => {
