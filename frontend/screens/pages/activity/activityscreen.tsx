@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import ActivityCard from '@/components/activity/ActivityCard';
 import Activity from '@/types/activity';
+import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 
 const mockActivities: Activity[] = [
     {
@@ -46,16 +47,18 @@ export default function ActivityPage() {
     }, []);
 
     return (
-        <ScrollView className="p-5">
-            <Text className="text-4xl font-bold text-black mb-5">Activity Feed</Text>
-            {activities.map((activity) => (
-                <ActivityCard
-                    key={activity.id}
-                    activity={activity}
-                    onUserPress={(username) => console.log('Navigate to user:', username)}
-                    onMoviePress={(movieTitle) => console.log('Navigate to movie:', movieTitle)}
-                />
-            ))}
-        </ScrollView>
+        <SafeAreaViewAll color="white">
+            <ScrollView className="p-5">
+                <Text className="text-4xl font-bold text-black mb-5">Activity Feed</Text>
+                {activities.map((activity) => (
+                    <ActivityCard
+                        key={activity.id}
+                        activity={activity}
+                        onUserPress={(username) => console.log('Navigate to user:', username)}
+                        onMoviePress={(movieTitle) => console.log('Navigate to movie:', movieTitle)}
+                    />
+                ))}
+            </ScrollView>
+        </SafeAreaViewAll>
     );
 }
