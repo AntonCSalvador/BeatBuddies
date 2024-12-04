@@ -23,7 +23,7 @@ export default function ProfilePage() {
             id: '1',
             coverUrl: 'https://via.placeholder.com/100',
             title: 'Album 5',
-            rating: 4,
+            rating: 4.5,
         },
         {
             id: '2',
@@ -88,36 +88,52 @@ export default function ProfilePage() {
             {/* Recent Activity Section */}
             <View className="p-4">
                 <Text className="text-xl font-bold mb-2">Recent Activity</Text>
-                {recentActivity.map((activity) => (
-                    <View
-                        key={activity.id}
-                        className="flex-row items-center mb-4"
-                    >
-                        <Image
-                            source={{ uri: activity.coverUrl }}
-                            className="w-16 h-16 mr-4"
-                        />
-                        <View className="flex-1">
-                            <Text className="text-lg font-semibold">
-                                {activity.title}
-                            </Text>
-                            <View className="flex-row items-center">
-                                {[...Array(5)].map((_, index) => (
+                {recentActivity.map((activity) => {
+                    const fullStars = Math.floor(activity.rating);
+                    const hasHalfStar = activity.rating % 1 !== 0;
+
+                    return (
+                        <View
+                            key={activity.id}
+                            className="flex-row items-center mb-4"
+                        >
+                            <Image
+                                source={{ uri: activity.coverUrl }}
+                                className="w-16 h-16 mr-4"
+                            />
+                            <View className="flex-1">
+                                <Text className="text-lg font-semibold">
+                                    {activity.title}
+                                </Text>
+                                <View className="flex-row items-center">
+                                    {[...Array(fullStars)].map((_, index) => (
                                         <Ionicons
-                                            name={'star-outline'}
-                                            key={index}
+                                            key={`star-${activity.id}-${index}`}
+                                            name="star"
                                             size={16}
-                                            color={
-                                                index < activity.rating
-                                                    ? '#FFD700'
-                                                    : '#E5E7EB'
-                                            }
+                                            color="#FFD700"
                                         />
-                                ))}
+                                    ))}
+                                    {hasHalfStar && (
+                                        <Ionicons
+                                            name="star-half"
+                                            size={16}
+                                            color="#FFD700"
+                                        />
+                                    )}
+                                    {[...Array(5 - Math.ceil(activity.rating))].map((_, index) => (
+                                        <Ionicons
+                                            key={`star-outline-${activity.id}-${index}`}
+                                            name="star-outline"
+                                            size={16}
+                                            color="#E5E7EB"
+                                        />
+                                    ))}
+                                </View>
                             </View>
                         </View>
-                    </View>
-                ))}
+                    );
+                })}
             </View>
 
             {/* Navigation Links (Using LinkOptions) */}
