@@ -47,14 +47,13 @@ export const useOTP = () => {
       const userSnapshot = await getDoc(userRef);
 
       if (!userSnapshot.exists()) {
-        // User does not exist, create new user
         const newUser = {
           uid: user.uid,
           phoneNumber: user.phoneNumber || null,
           createdAt: serverTimestamp(),
-          profileImageLink: '', 
+          profileImageLink: 'https://i.pinimg.com/736x/a6/67/73/a667732975f0f1da1a0fd4625e30d776.jpg', 
           displayName: 'Change Me :)',
-           
+          Bio: 'Change me Again :)',
         };
         await setDoc(userRef, newUser);
         console.log('New user created in Firestore');

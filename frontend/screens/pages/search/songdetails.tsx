@@ -182,11 +182,7 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 <ActivityIndicator size="large" color="#007BFF" />
             </View>
         );
-        return (
-            <View className="flex-1 justify-center items-center bg-white">
-                <ActivityIndicator size="large" color="#007BFF" />
-            </View>
-        );
+       
     }
 
     if (error) {
@@ -195,11 +191,7 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 <Text className="text-red-500 text-lg">{error}</Text>
             </View>
         );
-        return (
-            <View className="flex-1 justify-center items-center bg-white">
-                <Text className="text-red-500 text-lg">{error}</Text>
-            </View>
-        );
+        
     }
 
     if (!track) {
@@ -208,11 +200,7 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 <Text className="text-red-500 text-lg">Track not found</Text>
             </View>
         );
-        return (
-            <View className="flex-1 justify-center items-center bg-white">
-                <Text className="text-red-500 text-lg">Track not found</Text>
-            </View>
-        );
+        
     }
 
     return (

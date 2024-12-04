@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState} from 'react';
 import { View, Text, Image, ScrollView, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinkOptions from './LinkOptions'; // Import your LinkOptions component
 import { signOut } from '@/utils/auth';
+import { auth, db } from '@/firebase/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
+import { useFocusEffect } from 'expo-router';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -16,6 +19,13 @@ export default function ProfilePage() {
         { id: '4', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/d/dc/Clairo_-_Charm.png', title: 'Album 4' },
         // Add more albums as needed
     ];
+
+    const [profileData, setProfileData] = useState({
+        displayName: '',
+        bio: '',
+        avatarUrl: 'https://via.placeholder.com/100', // Default placeholder image
+    });
+    const [loading, setLoading] = useState(true);
 
     // Dummy data for recent activity
     const recentActivity = [
@@ -63,16 +73,61 @@ export default function ProfilePage() {
         );
     };
 
+    useFocusEffect(
+        React.useCallback(() => {
+          let isActive = true;
+    
+          const fetchProfileData = async () => {
+            setLoading(true);
+            try {
+              const user = auth.currentUser;
+              if (!user) {
+                throw new Error('No user is currently signed in.');
+              }
+    
+              const userRef = doc(db, 'users', user.uid);
+              const userSnapshot = await getDoc(userRef);
+    
+              if (userSnapshot.exists()) {
+                const data = userSnapshot.data();
+                if (isActive) {
+                  setProfileData({
+                    displayName: data.displayName || 'No name provided',
+                    bio: data.Bio || 'No bio provided',
+                    avatarUrl: data.profileImageLink || 'https://via.placeholder.com/100',
+                  });
+                }
+              } else {
+                throw new Error('User document does not exist.');
+              }
+            } catch (error) {
+              console.error('Error fetching profile data:', error);
+              Alert.alert('Error', 'Failed to fetch profile information.');
+            } finally {
+              if (isActive) {
+                setLoading(false);
+              }
+            }
+          };
+    
+          fetchProfileData();
+    
+          return () => {
+            isActive = false;
+          };
+        }, [])
+      );
+
     return (
         <ScrollView className="flex-1 bg-white">
             {/* Header Section */}
             <View className="items-center p-4 bg-gray-100">
                 <Image
-                    source={{ uri: 'https://via.placeholder.com/100' }}
+                    source={{ uri: profileData.avatarUrl }}
                     className="w-24 h-24 rounded-full mb-2"
                 />
-                <Text className="text-2xl font-bold">Your Name</Text>
-                <Text className="text-gray-600">Your bio goes here.</Text>
+                <Text className="text-2xl font-bold">{profileData.displayName}</Text>
+                <Text className="text-gray-600">{profileData.bio}</Text>
             </View>
 
             {/* Favorite Albums Section */}
@@ -90,7 +145,6 @@ export default function ProfilePage() {
                 </ScrollView>
             </View>
 
-            {/* Recent Activity Section */}
             {/* Recent Activity Section */}
             <View className="p-4">
                 <Text className="text-xl font-bold mb-2">Recent Activity</Text>
