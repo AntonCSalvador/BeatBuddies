@@ -177,7 +177,12 @@ export default function SearchScreen() {
                 {['track', 'album', 'artist'].map((tab) => (
                     <TouchableOpacity
                         key={tab}
-                        onPress={() => setSelectedTab(tab as 'track' | 'album' | 'artist')}
+                        onPress={() => {
+                            setSelectedTab(tab as 'track' | 'album' | 'artist')
+                            setTracks([]); // Clear the displayed tracks
+                            setOffset(0); // Reset offset for pagination
+                            setHasMore(true); // Reset pagination flag
+                        }}
                         style={{
                             flex: 1,
                             padding: 10,
