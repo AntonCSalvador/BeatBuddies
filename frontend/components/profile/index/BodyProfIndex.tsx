@@ -142,7 +142,7 @@ export default function ProfilePage() {
             <View className="w-full mt-0 mb-0 border-t border-gray-200">
                 <LinkOptions
                     title="Albums"
-                    onPress={() => router.push('/(pages)/profile/')}
+                    onPress={() => router.push('/(pages)/profile/albumGallery')}
                     color="black"
                 />
             </View>
@@ -150,7 +150,7 @@ export default function ProfilePage() {
             <View className="w-full mt-0 mb-0 border-t border-gray-200">
                 <LinkOptions
                     title="Songs"
-                    onPress={() => router.push('/(pages)/home')}
+                    onPress={() => router.push('/(pages)/profile/songGallery')}
                     color="black"
                 />
             </View>
@@ -158,7 +158,7 @@ export default function ProfilePage() {
             <View className="w-full mt-0 mb-0 border-t border-gray-200">
                 <LinkOptions
                     title="Artists"
-                    onPress={() => router.push('/(pages)/home')}
+                    onPress={() => router.push('/(pages)/profile/artistGallery')}
                     color="black"
                 />
             </View>

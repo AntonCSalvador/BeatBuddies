@@ -191,8 +191,8 @@ export default function SongDetails({ songId }: SongDetailsProps) {
             <View className="items-center mt-12">
                 <Image source={{ uri: track.albumCover }} className="w-52 h-52 rounded-lg mb-4" />
                 <Text className="text-2xl font-bold text-black text-center mb-2">{track.name}</Text>
-                <Text className="text-lg text-gray-600 mb-1">Artist: {track.artist}</Text>
-                <Text className="text-md text-gray-500 mb-4">Album: {track.album}</Text>
+                {/* <Text className="text-lg text-gray-600 mb-1">Artist: {track.artist}</Text> */}
+                {/* <Text className="text-md text-gray-500 mb-4">Album: {track.album}</Text> */}
 
                 {/* Half-Star Rating */}
                 <View className="flex-row items-center mb-4">
@@ -239,25 +239,6 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                     <Ionicons name="send-outline" size={24} color="#fff" />
                     <Text className="text-white text-lg ml-2">Submit</Text>
                 </TouchableOpacity>
-
-                {/* Play/Pause Button */}
-                {track.previewUrl ? (
-                    <TouchableOpacity
-                        onPress={togglePlayPause}
-                        className="flex-row items-center justify-center bg-green-500 py-3 px-5 rounded-lg"
-                    >
-                        <Ionicons
-                            name={isPlaying ? 'pause' : 'play'}
-                            size={24}
-                            color="#fff"
-                        />
-                        <Text className="text-white text-lg ml-2">
-                            {isPlaying ? 'Pause Preview' : 'Play Preview'}
-                        </Text>
-                    </TouchableOpacity>
-                ) : (
-                    <Text className="text-gray-500 mt-2">No Preview Available</Text>
-                )}
             </View>
         </View>
         </TouchableWithoutFeedback>

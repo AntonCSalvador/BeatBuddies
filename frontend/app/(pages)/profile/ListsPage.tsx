@@ -44,7 +44,7 @@ export default function ListsPage() {
 
         {/* Create New List Button */}
         <TouchableOpacity
-          onPress={() => router.push('/(pages)/profile/ListsPage')} //create new page here
+          onPress={() => router.push('/(pages)/profile/CreateNewList')} //create new page here
           className="m-4 p-4 bg-blue-500 rounded-lg items-center"
         >
           <Text className="text-white font-bold">Create New List</Text>
