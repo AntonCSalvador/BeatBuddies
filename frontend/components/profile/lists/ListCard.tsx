@@ -18,11 +18,13 @@ interface ListCardProps {
 export default function ListCard({ list }: ListCardProps) {
     const router = useRouter();
 
-    const handlePress = () => {
-        // Navigate to the ListDetailsPage with the list ID
-        console.log('hi');
-        router.push(`./pages/lists/${list.id}`);
-    };
+  const handlePress = () => {
+    // Navigate to ListDetailsPage with the list ID
+    router.push({
+      pathname: '/(pages)/profile/listSend',
+      params: { listId: list.id },
+    });
+  };
 
     return (
         <TouchableOpacity onPress={handlePress} className="mb-4">

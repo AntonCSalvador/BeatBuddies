@@ -10,10 +10,12 @@ import {
     Keyboard,
     TouchableWithoutFeedback,
     Alert,
+    Pressable
 } from 'react-native';
 import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 import * as ImagePicker from 'expo-image-picker';
 import { CLOUDINARY_URL } from '@/screens/spotify';
+import { useRouter } from 'expo-router';
 
 export default function AccountInfo() {
     const [displayName, setDisplayName] = useState('');
@@ -22,6 +24,32 @@ export default function AccountInfo() {
         'https://i.pinimg.com/736x/a6/67/73/a667732975f0f1da1a0fd4625e30d776.jpg'
     );
     const [isUploading, setIsUploading] = useState(false);
+
+    const router = useRouter();
+
+    // Dummy data for favorite albums
+    const [favoriteAlbums, setFavoriteAlbums] = useState([
+        {
+            id: 1,
+            title: 'Album One',
+            cover: 'https://via.placeholder.com/100',
+        },
+        {
+            id: 2,
+            title: 'Album Two',
+            cover: 'https://via.placeholder.com/100',
+        },
+        {
+            id: 3,
+            title: 'Album Three',
+            cover: 'https://via.placeholder.com/100',
+        },
+        {
+            id: 4,
+            title: 'Album Four',
+            cover: 'https://via.placeholder.com/100',
+        },
+    ]);
 
     const handleDismissKeyboard = () => {
         Keyboard.dismiss();
@@ -37,20 +65,19 @@ export default function AccountInfo() {
             return false;
         }
         if (bio.length > 250) {
-            Alert.alert('Invalid Bio', 'Bio must be less than 250 characters.');
+            Alert.alert(
+                'Invalid Bio',
+                'Bio must be less than 250 characters.'
+            );
             return false;
         }
         return true;
     };
 
     const handleImageUpload = async () => {
-        const permissionResult =
-            await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permissionResult.granted) {
-            Alert.alert(
-                'Permission Required',
-                'Please allow access to the media library.'
-            );
+            Alert.alert('Permission Required', 'Please allow access to the media library.');
             return;
         }
 
@@ -87,10 +114,7 @@ export default function AccountInfo() {
             setAvatarUrl(data.secure_url);
             Alert.alert('Upload Successful', 'Your picture has been uploaded.');
         } catch (error) {
-            Alert.alert(
-                'Upload Failed',
-                'Something went wrong during the upload.'
-            );
+            Alert.alert('Upload Failed', 'Something went wrong during the upload.');
             console.error(error);
         } finally {
             setIsUploading(false);
@@ -98,147 +122,102 @@ export default function AccountInfo() {
     };
 
     const handleSubmit = () => {
-        if (validateInput()) {
-            console.log('Submitted:', { displayName, bio, avatarUrl });
-            Alert.alert('Success', 'Your profile has been updated!');
-        }
-    };
+      if (validateInput()) {
+          console.log('Submitted:', { displayName, bio, avatarUrl });
+          Alert.alert('Success', 'Your profile has been updated!');
+      }
+  };
 
-    return (
-        <SafeAreaViewAll color="white">
-            <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
-                <KeyboardAvoidingView
-                    behavior="padding"
-                    style={{ flex: 1 }}
-                    keyboardVerticalOffset={60}
-                >
-                    <ScrollView
-                        contentContainerStyle={{ flexGrow: 1, padding: 16 }}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <Text
-                            style={{
-                                fontSize: 24,
-                                fontWeight: 'bold',
-                                textAlign: 'center',
-                                marginBottom: 16,
-                            }}
-                        >
-                            Your BeatBuddies Account
-                        </Text>
+  return (
+      <SafeAreaViewAll color="white">
+          <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
+              <KeyboardAvoidingView
+                  behavior="padding"
+                  style={{ flex: 1 }}
+                  keyboardVerticalOffset={60}
+              >
+                  <ScrollView
+                      contentContainerStyle={{ flexGrow: 1, padding: 16 }}
+                      keyboardShouldPersistTaps="handled"
+                  >
+                      <Text className="text-2xl font-bold text-center mb-4">
+                          Your BeatBuddies Account
+                      </Text>
 
-                        {/* Avatar Section */}
-                        <View
-                            style={{ alignItems: 'center', marginBottom: 24 }}
-                        >
-                            <Image
-                                source={{ uri: avatarUrl }}
-                                style={{
-                                    width: 96,
-                                    height: 96,
-                                    borderRadius: 48,
-                                    marginBottom: 16,
-                                }}
-                            />
-                            <TouchableOpacity
-                                onPress={handleImageUpload}
-                                style={{
-                                    padding: 10,
-                                    backgroundColor: isUploading
-                                        ? '#ccc'
-                                        : '#f0f0f0',
-                                    borderRadius: 8,
-                                }}
-                                disabled={isUploading}
-                            >
-                                <Text
-                                    style={{ fontSize: 14, color: '#007BFF' }}
+                      {/* Avatar Section */}
+                      <View className="items-center mb-6">
+                          <Image
+                              source={{ uri: avatarUrl }}
+                              className="w-24 h-24 rounded-full mb-4"
+                          />
+                          <TouchableOpacity
+                              onPress={handleImageUpload}
+                              className={`py-2 px-4 rounded-lg ${
+                                  isUploading ? 'bg-gray-300' : 'bg-blue-500'
+                              }`}
+                              disabled={isUploading}
+                          >
+                              <Text className="text-white text-sm">
+                                  {isUploading ? 'Uploading...' : 'Upload Picture'}
+                              </Text>
+                          </TouchableOpacity>
+                      </View>
+
+                      {/* Favorite Albums Section */}
+                      <View className="mb-6">
+                          <Text className="text-lg font-bold mb-2">Favorite Albums</Text>
+                          <View className="flex-row flex-wrap -mx-2">
+                              {favoriteAlbums.map((album) => (
+                                <TouchableOpacity
+                                    key={album.id}
+                                    className="w-1/4 px-2 border-dashed border-2 border-gray-300 rounded-lg flex items-center justify-center h-24"
+                                    onPress={() => console.log(`Add or Edit album: ${album.title}`)}
+                                    activeOpacity={0.7}
                                 >
-                                    {isUploading
-                                        ? 'Uploading...'
-                                        : 'Upload Picture'}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
+                                    <Text className="text-lg font-bold text-gray-400">+</Text>
+                                    <Text className="text-xs text-gray-400 text-center mt-1">Add Album</Text>
+                                </TouchableOpacity>
+                              ))}
+                          </View>
+                      </View>
+                      {/* Display Name Input */}
+                      <View className="mb-4">
+                          <Text className="text-lg font-bold mb-2">
+                              Display Name
+                          </Text>
+                          <TextInput
+                              placeholder="Your display name"
+                              value={displayName}
+                              onChangeText={setDisplayName}
+                              className="border border-gray-300 rounded-lg p-3 bg-white text-sm"
+                          />
+                      </View>
 
-                        {/* Display Name Input */}
-                        <View style={{ marginBottom: 16 }}>
-                            <Text
-                                style={{
-                                    fontSize: 14,
-                                    fontWeight: '600',
-                                    marginBottom: 8,
-                                }}
-                            >
-                                Display Name
-                            </Text>
-                            <TextInput
-                                placeholder="Your display name"
-                                value={displayName}
-                                onChangeText={setDisplayName}
-                                style={{
-                                    borderWidth: 1,
-                                    borderColor: '#ddd',
-                                    borderRadius: 8,
-                                    padding: 12,
-                                    fontSize: 16,
-                                    backgroundColor: '#fff',
-                                }}
-                            />
-                        </View>
+                      {/* Bio Input */}
+                      <View className="mb-4">
+                          <Text className="text-lg font-bold mb-2">Bio</Text>
+                          <TextInput
+                              placeholder="Tell us about yourself and your music taste..."
+                              value={bio}
+                              onChangeText={setBio}
+                              multiline
+                              numberOfLines={4}
+                              className="border border-gray-300 rounded-lg p-3 bg-white text-sm text-justify"
+                          />
+                      </View>
 
-                        {/* Bio Input */}
-                        <View style={{ marginBottom: 16 }}>
-                            <Text
-                                style={{
-                                    fontSize: 14,
-                                    fontWeight: '600',
-                                    marginBottom: 8,
-                                }}
-                            >
-                                Bio
-                            </Text>
-                            <TextInput
-                                placeholder="Tell us about yourself and your music taste..."
-                                value={bio}
-                                onChangeText={setBio}
-                                multiline
-                                numberOfLines={4}
-                                style={{
-                                    borderWidth: 1,
-                                    borderColor: '#ddd',
-                                    borderRadius: 8,
-                                    padding: 12,
-                                    fontSize: 16,
-                                    backgroundColor: '#fff',
-                                    textAlignVertical: 'top',
-                                }}
-                            />
-                        </View>
-
-                        {/* Save Changes Button */}
-                        <TouchableOpacity
-                            onPress={handleSubmit}
-                            style={{
-                                paddingVertical: 14,
-                                borderRadius: 8,
-                                backgroundColor: '#007BFF',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    fontSize: 16,
-                                    fontWeight: '600',
-                                    color: '#fff',
-                                }}
-                            >
-                                Save Changes
-                            </Text>
-                        </TouchableOpacity>
-                    </ScrollView>
-                </KeyboardAvoidingView>
-            </TouchableWithoutFeedback>
-        </SafeAreaViewAll>
-    );
+                      {/* Save Changes Button */}
+                      <TouchableOpacity
+                          onPress={handleSubmit}
+                          className="py-4 rounded-lg bg-blue-500"
+                      >
+                          <Text className="text-center text-white font-semibold">
+                              Save Changes
+                          </Text>
+                      </TouchableOpacity>
+                  </ScrollView>
+              </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
+      </SafeAreaViewAll>
+  );
 }

@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-    View,
-    Text,
-    TextInput,
-    Button,
-    Image,
-    ScrollView,
-    Pressable,
-    TouchableOpacity,
-} from 'react-native';
+import { View, Text, TextInput, Button, Image, ScrollView, Pressable, TouchableOpacity } from 'react-native';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { Audio } from 'expo-av';
 import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
@@ -102,9 +93,7 @@ export default function SearchScreen() {
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [selectedTab, setSelectedTab] = useState<
-        'track' | 'album' | 'artist'
-    >('track');
+    const [selectedTab, setSelectedTab] = useState<'track' | 'album' | 'artist'>('track');
 
     const fetchTracks = async (query: string, newOffset: number) => {
         if (isLoading || !hasMore) return;
@@ -138,173 +127,123 @@ export default function SearchScreen() {
 
     return (
         <SafeAreaViewAll color="white">
-            <ScrollView
-                contentContainerStyle={{ padding: 16 }}
-                onScroll={({ nativeEvent }) => {
-                    const { layoutMeasurement, contentOffset, contentSize } =
-                        nativeEvent;
-                    if (
-                        layoutMeasurement.height + contentOffset.y >=
-                        contentSize.height - 20
-                    ) {
-                        fetchTracks(searchText, offset);
-                    }
-                }}
-                scrollEventThrottle={16}
-            >
-                <Text
-                    style={{
-                        fontSize: 32,
-                        fontWeight: 'bold',
-                        color: 'black',
-                        marginBottom: 16,
-                    }}
-                >
-                    Search
-                </Text>
+        <ScrollView
+            contentContainerStyle={{ padding: 16 }}
+            onScroll={({ nativeEvent }) => {
+                const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+                if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
+                    fetchTracks(searchText, offset);
+                }
+            }}
+            scrollEventThrottle={16}
+        >
+            <Text style={{ fontSize: 32, fontWeight: 'bold', color: 'black', marginBottom: 16 }}>Search</Text>
 
-                {/* Tab Selection */}
-                <View style={{ flexDirection: 'row', marginBottom: 16 }}>
-                    {['track', 'album', 'artist'].map((tab) => (
-                        <TouchableOpacity
-                            key={tab}
-                            onPress={() => {
-                                setSelectedTab(
-                                    tab as 'track' | 'album' | 'artist'
-                                );
-                                setTracks([]);
-                                setOffset(0);
-                                setHasMore(true);
-                            }}
-                            style={{
-                                flex: 1,
-                                padding: 10,
-                                backgroundColor:
-                                    selectedTab === tab ? '#007BFF' : '#f0f0f0',
-                                borderRadius: 4,
-                                marginHorizontal: 2,
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    textAlign: 'center',
-                                    color:
-                                        selectedTab === tab ? '#fff' : '#000',
-                                }}
-                            >
-                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-
-                <TextInput
-                    placeholder={`Search by ${selectedTab}`}
-                    value={searchText}
-                    onChangeText={setSearchText}
-                    style={{
-                        borderWidth: 1,
-                        borderColor: '#ddd',
-                        padding: 8,
-                        marginBottom: 16,
-                        borderRadius: 4,
-                    }}
-                />
-                <Button title="Search" onPress={handleSearch} />
-
-                {tracks.map((track) => (
-                    <View
-                        key={track.id}
+            {/* Tab Selection */}
+            <View style={{ flexDirection: 'row', marginBottom: 16 }}>
+                {['track', 'album', 'artist'].map((tab) => (
+                    <TouchableOpacity
+                        key={tab}
+                        onPress={() => {
+                            setSelectedTab(tab as 'track' | 'album' | 'artist');
+                            setTracks([]);
+                            setOffset(0);
+                            setHasMore(true);
+                        }}
                         style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            marginTop: 16,
-                            padding: 12,
-                            backgroundColor: '#e0e0e0',
-                            borderRadius: 8,
+                            flex: 1,
+                            padding: 10,
+                            backgroundColor: selectedTab === tab ? '#007BFF' : '#f0f0f0',
+                            borderRadius: 4,
+                            marginHorizontal: 2,
                         }}
                     >
-                        {track.albumCover ? (
-                            <Image
-                                source={{ uri: track.albumCover }}
-                                style={{
-                                    width: 80,
-                                    height: 80,
-                                    borderRadius: 8,
-                                    marginRight: 16,
-                                }}
-                            />
-                        ) : (
-                            <View
-                                style={{
-                                    width: 80,
-                                    height: 80,
-                                    backgroundColor: '#ccc',
-                                    borderRadius: 8,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    marginRight: 16,
-                                }}
-                            >
-                                <Text style={{ color: '#666' }}>No Cover</Text>
-                            </View>
-                        )}
+                        <Text style={{ textAlign: 'center', color: selectedTab === tab ? '#fff' : '#000' }}>
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
 
-                        <View style={{ flex: 1 }}>
-                            <Text
-                                style={{
-                                    color: 'black',
-                                    fontWeight: 'bold',
-                                    fontSize: 18,
-                                }}
-                                numberOfLines={1}
-                            >
-                                {track.name}
-                            </Text>
-                            {selectedTab !== 'artist' && (
-                                <Text
-                                    style={{
-                                        color: '#666',
-                                        fontSize: 14,
-                                        marginTop: 4,
-                                    }}
-                                    numberOfLines={1}
-                                >
-                                    {track.album}
-                                </Text>
-                            )}
-                            <Text
-                                style={{
-                                    color: '#999',
-                                    fontSize: 14,
-                                    marginTop: 4,
-                                }}
-                                numberOfLines={1}
-                            >
-                                {track.artist}
-                            </Text>
-                        </View>
+            <TextInput
+                placeholder={`Search by ${selectedTab}`}
+                value={searchText}
+                onChangeText={setSearchText}
+                style={{
+                    borderWidth: 1,
+                    borderColor: '#ddd',
+                    padding: 8,
+                    marginBottom: 16,
+                    borderRadius: 4,
+                }}
+            />
+            <Button title="Search" onPress={handleSearch} />
 
-                        {/* Add Button */}
-                        <TouchableOpacity
-                            onPress={() => handleAdd(track)}
+            {tracks.map((track) => (
+                <View
+                    key={track.id}
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 16,
+                        padding: 12,
+                        backgroundColor: '#e0e0e0',
+                        borderRadius: 8,
+                    }}
+                >
+                    {track.albumCover ? (
+                        <Image
+                            source={{ uri: track.albumCover }}
+                            style={{ width: 80, height: 80, borderRadius: 8, marginRight: 16 }}
+                        />
+                    ) : (
+                        <View
                             style={{
-                                padding: 10,
-                                backgroundColor: '#007BFF',
+                                width: 80,
+                                height: 80,
+                                backgroundColor: '#ccc',
                                 borderRadius: 8,
-                                alignItems: 'center',
                                 justifyContent: 'center',
+                                alignItems: 'center',
+                                marginRight: 16,
                             }}
                         >
-                            <Text style={{ color: '#fff', fontWeight: 'bold' }}>
-                                +
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                ))}
+                            <Text style={{ color: '#666' }}>No Cover</Text>
+                        </View>
+                    )}
 
-                {isLoading && <Text>Loading more...</Text>}
-            </ScrollView>
+                    <View style={{ flex: 1 }}>
+                        <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 18 }} numberOfLines={1}>
+                            {track.name}
+                        </Text>
+                        {selectedTab !== 'artist' && (
+                            <Text style={{ color: '#666', fontSize: 14, marginTop: 4 }} numberOfLines={1}>
+                                {track.album}
+                            </Text>
+                        )}
+                        <Text style={{ color: '#999', fontSize: 14, marginTop: 4 }} numberOfLines={1}>
+                            {track.artist}
+                        </Text>
+                    </View>
+
+                    {/* Add Button */}
+                    <TouchableOpacity
+                        onPress={() => handleAdd(track)}
+                        style={{
+                            padding: 10,
+                            backgroundColor: '#007BFF',
+                            borderRadius: 8,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <Text style={{ color: '#fff', fontWeight: 'bold' }}>+</Text>
+                    </TouchableOpacity>
+                </View>
+            ))}
+
+            {isLoading && <Text>Loading more...</Text>}
+        </ScrollView>
         </SafeAreaViewAll>
     );
 }
