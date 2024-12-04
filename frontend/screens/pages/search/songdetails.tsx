@@ -197,7 +197,6 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                     console.log('Rating submitted: ' + rating);
                     try {
                     await addItemToUser('songs', track.id, { rating: rating, review: '' });
-                    console.log('Song added successfully');
                     } catch (error) {
                     console.error('Error adding song:', error);
                     }
