@@ -178,7 +178,7 @@ export default function ProfilePage() {
                 </Text>
                 <LinkOptions
                     title="Account Info"
-                    onPress={() => router.push('/(pages)/home')}
+                    onPress={() => router.push('/(pages)/profile/accountInfo')}
                     color="black"
                 />
                 <LinkOptions
