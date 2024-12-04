@@ -52,13 +52,13 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                         },
                     }
                 );
-    
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch artist details');
                 }
-    
+
                 const data = await response.json();
-    
+
                 // Update the state with artist data
                 setTrack({
                     id: data.id,
@@ -74,16 +74,15 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 setLoading(false);
             }
         }
-    
+
         fetchArtistDetails();
-    
+
         return () => {
             if (sound) {
                 sound.unloadAsync(); // Ensure sound is stopped when component unmounts
             }
         };
     }, [songId]);
-    
 
     useFocusEffect(
         React.useCallback(() => {
@@ -179,68 +178,73 @@ export default function SongDetails({ songId }: SongDetailsProps) {
 
     return (
         <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
-        <View className="flex-1 bg-white px-6 py-4">
-            {/* Custom Back Button */}
-            <TouchableOpacity
-                onPress={() => router.back()}
-                className="absolute top-12 left-4 p-2"
-            >
-                <Ionicons name="arrow-back" size={24} color="#333" />
-            </TouchableOpacity>
-
-            <View className="items-center mt-12">
-                <Image source={{ uri: track.albumCover }} className="w-52 h-52 rounded-lg mb-4" />
-                <Text className="text-2xl font-bold text-black text-center mb-2">{track.name}</Text>
-                {/* <Text className="text-lg text-gray-600 mb-1">Artist: {track.artist}</Text> */}
-                {/* <Text className="text-md text-gray-500 mb-4">Album: {track.album}</Text> */}
-
-                {/* Half-Star Rating */}
-                <View className="flex-row items-center mb-4">
-                    {[1, 2, 3, 4, 5].map((star) => {
-                        let iconName = 'star-outline';
-
-                        if (rating >= star) {
-                            iconName = 'star';
-                        } else if (rating === star - 0.5) {
-                            iconName = 'star-half';
-                        }
-
-                        return (
-                            <TouchableOpacity
-                                key={star}
-                                onPress={() => handleStarPress(star)}
-                            >
-                                <Ionicons
-                                    name={iconName}
-                                    size={32}
-                                    color="#FFD700"
-                                />
-                            </TouchableOpacity>
-                        );
-                    })}
-                </View>
-
-                {/* Review Input */}
-                <TextInput
-                    className="w-full border border-gray-300 rounded-lg p-3 text-base h-28 mb-4"
-                    placeholder="Write your review here..."
-                    value={review}
-                    onChangeText={setReview}
-                    multiline
-                    returnKeyType="done" // Ensures 'Done' or equivalent is shown
-                    onSubmitEditing={handleDismissKeyboard} // Dismiss keyboard on return
-                />
-
-                {/* Submit Button */}
+            <View className="flex-1 bg-white px-6 py-4">
+                {/* Custom Back Button */}
                 <TouchableOpacity
-                    onPress={handleSubmit}
-                    className="flex-row items-center justify-center bg-blue-500 py-3 px-5 rounded-lg mb-4"
+                    onPress={() => router.back()}
+                    className="absolute top-12 left-4 p-2"
                 >
-                    <Ionicons name="send-outline" size={24} color="#fff" />
-                    <Text className="text-white text-lg ml-2">Submit</Text>
+                    <Ionicons name="arrow-back" size={24} color="#333" />
                 </TouchableOpacity>
+
+                <View className="items-center mt-12">
+                    <Image
+                        source={{ uri: track.albumCover }}
+                        className="w-52 h-52 rounded-lg mb-4"
+                    />
+                    <Text className="text-2xl font-bold text-black text-center mb-2">
+                        {track.name}
+                    </Text>
+                    {/* <Text className="text-lg text-gray-600 mb-1">Artist: {track.artist}</Text> */}
+                    {/* <Text className="text-md text-gray-500 mb-4">Album: {track.album}</Text> */}
+
+                    {/* Half-Star Rating */}
+                    <View className="flex-row items-center mb-4">
+                        {[1, 2, 3, 4, 5].map((star) => {
+                            let iconName = 'star-outline';
+
+                            if (rating >= star) {
+                                iconName = 'star';
+                            } else if (rating === star - 0.5) {
+                                iconName = 'star-half';
+                            }
+
+                            return (
+                                <TouchableOpacity
+                                    key={star}
+                                    onPress={() => handleStarPress(star)}
+                                >
+                                    <Ionicons
+                                        name={iconName}
+                                        size={32}
+                                        color="#FFD700"
+                                    />
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+
+                    {/* Review Input */}
+                    <TextInput
+                        className="w-full border border-gray-300 rounded-lg p-3 text-base h-28 mb-4"
+                        placeholder="Write your review here..."
+                        value={review}
+                        onChangeText={setReview}
+                        multiline
+                        returnKeyType="done" // Ensures 'Done' or equivalent is shown
+                        onSubmitEditing={handleDismissKeyboard} // Dismiss keyboard on return
+                    />
+
+                    {/* Submit Button */}
+                    <TouchableOpacity
+                        onPress={handleSubmit}
+                        className="flex-row items-center justify-center bg-blue-500 py-3 px-5 rounded-lg mb-4"
+                    >
+                        <Ionicons name="send-outline" size={24} color="#fff" />
+                        <Text className="text-white text-lg ml-2">Submit</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
         </TouchableWithoutFeedback>
     );
 }

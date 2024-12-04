@@ -37,19 +37,20 @@ export default function AccountInfo() {
             return false;
         }
         if (bio.length > 250) {
-            Alert.alert(
-                'Invalid Bio',
-                'Bio must be less than 250 characters.'
-            );
+            Alert.alert('Invalid Bio', 'Bio must be less than 250 characters.');
             return false;
         }
         return true;
     };
 
     const handleImageUpload = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const permissionResult =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permissionResult.granted) {
-            Alert.alert('Permission Required', 'Please allow access to the media library.');
+            Alert.alert(
+                'Permission Required',
+                'Please allow access to the media library.'
+            );
             return;
         }
 
@@ -86,7 +87,10 @@ export default function AccountInfo() {
             setAvatarUrl(data.secure_url);
             Alert.alert('Upload Successful', 'Your picture has been uploaded.');
         } catch (error) {
-            Alert.alert('Upload Failed', 'Something went wrong during the upload.');
+            Alert.alert(
+                'Upload Failed',
+                'Something went wrong during the upload.'
+            );
             console.error(error);
         } finally {
             setIsUploading(false);
@@ -124,7 +128,9 @@ export default function AccountInfo() {
                         </Text>
 
                         {/* Avatar Section */}
-                        <View style={{ alignItems: 'center', marginBottom: 24 }}>
+                        <View
+                            style={{ alignItems: 'center', marginBottom: 24 }}
+                        >
                             <Image
                                 source={{ uri: avatarUrl }}
                                 style={{
@@ -138,20 +144,32 @@ export default function AccountInfo() {
                                 onPress={handleImageUpload}
                                 style={{
                                     padding: 10,
-                                    backgroundColor: isUploading ? '#ccc' : '#f0f0f0',
+                                    backgroundColor: isUploading
+                                        ? '#ccc'
+                                        : '#f0f0f0',
                                     borderRadius: 8,
                                 }}
                                 disabled={isUploading}
                             >
-                                <Text style={{ fontSize: 14, color: '#007BFF' }}>
-                                    {isUploading ? 'Uploading...' : 'Upload Picture'}
+                                <Text
+                                    style={{ fontSize: 14, color: '#007BFF' }}
+                                >
+                                    {isUploading
+                                        ? 'Uploading...'
+                                        : 'Upload Picture'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
 
                         {/* Display Name Input */}
                         <View style={{ marginBottom: 16 }}>
-                            <Text style={{ fontSize: 14, fontWeight: '600', marginBottom: 8 }}>
+                            <Text
+                                style={{
+                                    fontSize: 14,
+                                    fontWeight: '600',
+                                    marginBottom: 8,
+                                }}
+                            >
                                 Display Name
                             </Text>
                             <TextInput
@@ -171,7 +189,15 @@ export default function AccountInfo() {
 
                         {/* Bio Input */}
                         <View style={{ marginBottom: 16 }}>
-                            <Text style={{ fontSize: 14, fontWeight: '600', marginBottom: 8 }}>Bio</Text>
+                            <Text
+                                style={{
+                                    fontSize: 14,
+                                    fontWeight: '600',
+                                    marginBottom: 8,
+                                }}
+                            >
+                                Bio
+                            </Text>
                             <TextInput
                                 placeholder="Tell us about yourself and your music taste..."
                                 value={bio}
@@ -200,7 +226,13 @@ export default function AccountInfo() {
                                 alignItems: 'center',
                             }}
                         >
-                            <Text style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>
+                            <Text
+                                style={{
+                                    fontSize: 16,
+                                    fontWeight: '600',
+                                    color: '#fff',
+                                }}
+                            >
                                 Save Changes
                             </Text>
                         </TouchableOpacity>
