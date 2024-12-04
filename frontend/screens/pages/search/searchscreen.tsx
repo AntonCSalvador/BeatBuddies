@@ -170,6 +170,7 @@ export default function SearchScreen() {
             }}
             scrollEventThrottle={16}
         >
+            <Text className="text-4xl font-bold text-black mb-5">Search</Text>
             <TextInput
                 placeholder="Enter track name"
                 value={searchText}
