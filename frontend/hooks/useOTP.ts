@@ -52,6 +52,9 @@ export const useOTP = () => {
           uid: user.uid,
           phoneNumber: user.phoneNumber || null,
           createdAt: serverTimestamp(),
+          profileImageLink: '', 
+          displayName: 'Change Me :)',
+           
         };
         await setDoc(userRef, newUser);
         console.log('New user created in Firestore');
