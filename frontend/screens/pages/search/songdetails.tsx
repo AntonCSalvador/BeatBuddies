@@ -7,13 +7,17 @@ import {
     TouchableOpacity,
     TextInput,
     Keyboard,
-    TouchableWithoutFeedback,
+    Platform,
+    KeyboardAvoidingView,
+    ScrollView,
+    Alert,
 } from 'react-native';
 import { Audio } from 'expo-av';
 import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { useRouter } from 'expo-router';
+import { addItemToUser, getUserItem } from '@/utils/userData';
 
 // Define the type for the track data
 interface Track {
@@ -38,6 +42,7 @@ export default function SongDetails({ songId }: SongDetailsProps) {
     const [rating, setRating] = useState<number>(0); // Updated state for half-star rating
     const [review, setReview] = useState<string>(''); // State for review
     const router = useRouter();
+
 
     useEffect(() => {
         async function fetchTrackDetails() {
@@ -66,6 +71,13 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                     albumCover: data.album.images[0]?.url || '',
                     previewUrl: data.preview_url,
                 });
+
+                // Check if the user has already reviewed this song
+                const existingReview = await getUserItem('songs', songId);
+                if (existingReview) {
+                    setRating(existingReview.rating);
+                    setReview(existingReview.review);
+                }
             } catch (error) {
                 setError('Failed to load track details');
             } finally {
@@ -145,9 +157,23 @@ export default function SongDetails({ songId }: SongDetailsProps) {
         Keyboard.dismiss();
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         console.log('Rating submitted:', rating);
         console.log('Review submitted:', review);
+        try {
+            await addItemToUser('songs', track!.id, {
+                rating: rating,
+                review: review,
+            });
+            console.log('Song review added/updated successfully');
+            Alert.alert('Success', 'Your review has been saved.');
+        } catch (error) {
+            console.error('Error adding/updating song review:', error);
+            Alert.alert(
+                'Error',
+                'Failed to save your review. Please try again.'
+            );
+        }
     };
 
     if (loading) {
@@ -156,6 +182,7 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 <ActivityIndicator size="large" color="#007BFF" />
             </View>
         );
+       
     }
 
     if (error) {
@@ -164,6 +191,7 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 <Text className="text-red-500 text-lg">{error}</Text>
             </View>
         );
+        
     }
 
     if (!track) {
@@ -172,92 +200,118 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 <Text className="text-red-500 text-lg">Track not found</Text>
             </View>
         );
+        
     }
 
     return (
-        <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
-        <View className="flex-1 bg-white px-6 py-4">
-            {/* Custom Back Button */}
-            <TouchableOpacity
-                onPress={() => router.back()}
-                className="absolute top-12 left-4 p-2"
-            >
-                <Ionicons name="arrow-back" size={24} color="#333" />
-            </TouchableOpacity>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View className="flex-1 bg-white px-6 py-4">
+                    {/* Custom Back Button */}
+                    <TouchableOpacity
+                        onPress={() => router.back()}
+                        className="absolute top-12 left-4 p-2"
+                    >
+                        <Ionicons name="arrow-back" size={24} color="#333" />
+                    </TouchableOpacity>
 
-            <View className="items-center mt-12">
-                <Image source={{ uri: track.albumCover }} className="w-52 h-52 rounded-lg mb-4" />
-                <Text className="text-2xl font-bold text-black text-center mb-2">{track.name}</Text>
-                <Text className="text-lg text-gray-600 mb-1">Artist: {track.artist}</Text>
-                <Text className="text-md text-gray-500 mb-4">Album: {track.album}</Text>
+                    <View className="items-center mt-12">
+                        <Image
+                            source={{ uri: track.albumCover }}
+                            className="w-52 h-52 rounded-lg mb-4"
+                        />
+                        <Text className="text-2xl font-bold text-black text-center mb-2">
+                            {track.name}
+                        </Text>
+                        <Text className="text-lg text-gray-600 mb-1">
+                            Artist: {track.artist}
+                        </Text>
+                        <Text className="text-md text-gray-500 mb-4">
+                            Album: {track.album}
+                        </Text>
 
-                {/* Half-Star Rating */}
-                <View className="flex-row items-center mb-4">
-                    {[1, 2, 3, 4, 5].map((star) => {
-                        let iconName = 'star-outline';
+                        {/* Half-Star Rating */}
+                        <View className="flex-row items-center mb-4">
+                            {[1, 2, 3, 4, 5].map((star) => {
+                                let iconName = 'star-outline';
 
-                        if (rating >= star) {
-                            iconName = 'star';
-                        } else if (rating === star - 0.5) {
-                            iconName = 'star-half';
-                        }
+                                if (rating >= star) {
+                                    iconName = 'star';
+                                } else if (rating === star - 0.5) {
+                                    iconName = 'star-half';
+                                }
 
-                        return (
+                                return (
+                                    <TouchableOpacity
+                                        key={star}
+                                        onPress={() => handleStarPress(star)}
+                                    >
+                                        <Ionicons
+                                            name={iconName}
+                                            size={32}
+                                            color="#FFD700"
+                                        />
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+
+                        {/* Review Input */}
+                        <TextInput
+                            className="w-full border border-gray-300 rounded-lg p-3 text-base h-28 mb-4"
+                            placeholder="Write your review here..."
+                            value={review}
+                            onChangeText={setReview}
+                            multiline
+                            returnKeyType="done"
+                            blurOnSubmit={true}
+                            onSubmitEditing={handleDismissKeyboard}
+                        />
+
+                        {/* Submit Button */}
+                        <TouchableOpacity
+                            onPress={handleSubmit}
+                            className="flex-row items-center justify-center bg-blue-500 py-3 px-5 rounded-lg mb-4"
+                        >
+                            <Ionicons
+                                name="send-outline"
+                                size={24}
+                                color="#fff"
+                            />
+                            <Text className="text-white text-lg ml-2">
+                                Submit Review
+                            </Text>
+                        </TouchableOpacity>
+
+                        {/* Play/Pause Button */}
+                        {track.previewUrl ? (
                             <TouchableOpacity
-                                key={star}
-                                onPress={() => handleStarPress(star)}
+                                onPress={togglePlayPause}
+                                className="flex-row items-center justify-center bg-green-500 py-3 px-5 rounded-lg"
                             >
                                 <Ionicons
-                                    name={iconName}
-                                    size={32}
-                                    color="#FFD700"
+                                    name={isPlaying ? 'pause' : 'play'}
+                                    size={24}
+                                    color="#fff"
                                 />
+                                <Text className="text-white text-lg ml-2">
+                                    {isPlaying
+                                        ? 'Pause Preview'
+                                        : 'Play Preview'}
+                                </Text>
                             </TouchableOpacity>
-                        );
-                    })}
+                        ) : (
+                            <Text className="text-gray-500 mt-2">
+                                No Preview Available
+                            </Text>
+                        )}
+                    </View>
                 </View>
-
-                {/* Review Input */}
-                <TextInput
-                    className="w-full border border-gray-300 rounded-lg p-3 text-base h-28 mb-4"
-                    placeholder="Write your review here..."
-                    value={review}
-                    onChangeText={setReview}
-                    multiline
-                    returnKeyType="done" // Ensures 'Done' or equivalent is shown
-                    onSubmitEditing={handleDismissKeyboard} // Dismiss keyboard on return
-                />
-
-                {/* Submit Button */}
-                <TouchableOpacity
-                    onPress={handleSubmit}
-                    className="flex-row items-center justify-center bg-blue-500 py-3 px-5 rounded-lg mb-4"
-                >
-                    <Ionicons name="send-outline" size={24} color="#fff" />
-                    <Text className="text-white text-lg ml-2">Submit</Text>
-                </TouchableOpacity>
-
-                {/* Play/Pause Button */}
-                {track.previewUrl ? (
-                    <TouchableOpacity
-                        onPress={togglePlayPause}
-                        className="flex-row items-center justify-center bg-green-500 py-3 px-5 rounded-lg"
-                    >
-                        <Ionicons
-                            name={isPlaying ? 'pause' : 'play'}
-                            size={24}
-                            color="#fff"
-                        />
-                        <Text className="text-white text-lg ml-2">
-                            {isPlaying ? 'Pause Preview' : 'Play Preview'}
-                        </Text>
-                    </TouchableOpacity>
-                ) : (
-                    <Text className="text-gray-500 mt-2">No Preview Available</Text>
-                )}
-            </View>
-        </View>
-        </TouchableWithoutFeedback>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 

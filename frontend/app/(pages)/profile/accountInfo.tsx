@@ -23,7 +23,6 @@ interface Album {
   albumCover: string; // Changed from 'cover' to 'albumCover'
 }
 
-
 export default function AccountInfo() {
     const { addedAlbum } = useLocalSearchParams();
 
@@ -45,10 +44,11 @@ export default function AccountInfo() {
     const [displayName, setDisplayName] = useState('');
     const [bio, setBio] = useState('');
     const [avatarUrl, setAvatarUrl] = useState(
-        'https://i.pinimg.com/736x/a6/67/73/a667732975f0f1da1a0fd4625e30d776.jpg'
+      'https://i.pinimg.com/736x/a6/67/73/a667732975f0f1da1a0fd4625e30d776.jpg'
     );
     const [isUploading, setIsUploading] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(true);
+  
     const router = useRouter();
 
     // Handle adding a new album from navigation params
@@ -83,63 +83,118 @@ export default function AccountInfo() {
                 'Display Name must be less than 15 characters and can only contain letters, numbers, spaces, and underscores.'
             );
             return false;
+
         }
-        if (bio.length > 250) {
-            Alert.alert(
-                'Invalid Bio',
-                'Bio must be less than 250 characters.'
-            );
-            return false;
-        }
-        return true;
-    };
-
-    const handleImageUpload = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permissionResult.granted) {
-            Alert.alert('Permission Required', 'Please allow access to the media library.');
-            return;
-        }
-
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            quality: 1,
-        });
-
-        if (pickerResult.canceled) {
-            return;
-        }
-
-        const { uri, type: mimeType } = pickerResult.assets[0]; // Correct way to access the URI and MIME type
-        const fileName = uri.split('/').pop(); // Extract the file name from URI
-        setIsUploading(true);
-
+  
         try {
-            const formData = new FormData();
-            formData.append('file', {
-                uri,
-                name: fileName || 'upload', // Use the actual file name if available
-                type: mimeType || 'image/jpeg', // Fallback to 'image/jpeg' if type is undefined
-            } as any);
-            formData.append('upload_preset', 'beatbuddies'); // Replace with your Cloudinary preset
-            formData.append('cloud_name', 'dk4wmqxux'); // Replace with your Cloudinary cloud name
-
-            const response = await fetch(`${CLOUDINARY_URL}/image/upload`, {
-                method: 'POST',
-                body: formData,
-            });
-
-            const data = await response.json();
-            setAvatarUrl(data.secure_url);
-            Alert.alert('Upload Successful', 'Your picture has been uploaded.');
+          const userRef = doc(db, 'users', user.uid);
+          const userSnapshot = await getDoc(userRef);
+  
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            setDisplayName(userData.displayName || '');
+            setBio(userData.Bio || '');
+            setAvatarUrl(userData.profileImageLink || avatarUrl);
+          } else {
+            console.log('User document does not exist.');
+          }
         } catch (error) {
-            Alert.alert('Upload Failed', 'Something went wrong during the upload.');
-            console.error(error);
+          console.error('Error fetching user data:', error);
+          Alert.alert('Error', 'Failed to fetch user data.');
         } finally {
-            setIsUploading(false);
+          setIsLoading(false);
         }
-    };
+      };
+  
+      fetchUserData();
+    }, []);
+
+  const handleDismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
+
+  const validateInput = () => {
+    const displayNameRegex = /^[a-zA-Z0-9 _]{1,15}$/;
+    if (!displayNameRegex.test(displayName)) {
+      Alert.alert(
+        'Invalid Display Name',
+        'Display Name must be less than 15 characters and can only contain letters, numbers, spaces, and underscores.'
+      );
+      return false;
+    }
+    if (bio.length > 250) {
+      Alert.alert('Invalid Bio', 'Bio must be less than 250 characters.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleImageUpload = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Permission Required', 'Please allow access to the media library.');
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (pickerResult.canceled) {
+      return;
+    }
+
+    const { uri, type: mimeType } = pickerResult.assets[0];
+    const fileName = uri.split('/').pop();
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', {
+        uri,
+        name: fileName || 'upload',
+        type: mimeType || 'image/jpeg',
+      } as any);
+      formData.append('upload_preset', 'beatbuddies'); // Replace with your Cloudinary preset
+      formData.append('cloud_name', 'dk4wmqxux'); // Replace with your Cloudinary cloud name
+
+      const response = await fetch(`${CLOUDINARY_URL}/image/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      setAvatarUrl(data.secure_url);
+      Alert.alert('Upload Successful', 'Your picture has been uploaded.');
+    } catch (error) {
+      Alert.alert('Upload Failed', 'Something went wrong during the upload.');
+      console.error(error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (validateInput()) {
+      const user = auth.currentUser;
+
+      if (!user) {
+        Alert.alert('Error', 'No user is currently signed in.');
+        return;
+      }
+
+      try {
+        // Reference to the user's document in Firestore
+        const userRef = doc(db, 'users', user.uid);
+
+        // Update the document with new data
+        await updateDoc(userRef, {
+          displayName: displayName,
+          Bio: bio,
+          profileImageLink: avatarUrl,
+        });
 
     const handleSubmit = () => {
         if (validateInput()) {
