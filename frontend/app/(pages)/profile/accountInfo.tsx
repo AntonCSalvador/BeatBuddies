@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -10,14 +10,38 @@ import {
     Keyboard,
     TouchableWithoutFeedback,
     Alert,
-    Pressable
 } from 'react-native';
 import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 import * as ImagePicker from 'expo-image-picker';
 import { CLOUDINARY_URL } from '@/screens/spotify';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+
+interface Album {
+  id: string;
+  title: string;
+  artist: string;
+  albumCover: string; // Changed from 'cover' to 'albumCover'
+}
+
 
 export default function AccountInfo() {
+    const { addedAlbum } = useLocalSearchParams();
+
+    const [favoriteAlbums, setFavoriteAlbums] = useState<Album[]>([
+        // {
+        //     id: '1',
+        //     title: 'Album One',
+        //     artist: 'Artist One',
+        //     cover: 'https://via.placeholder.com/100',
+        // },
+        // {
+        //     id: '2',
+        //     title: 'Album Two',
+        //     artist: 'Artist Two',
+        //     cover: 'https://via.placeholder.com/100',
+        // },
+    ]);
+
     const [displayName, setDisplayName] = useState('');
     const [bio, setBio] = useState('');
     const [avatarUrl, setAvatarUrl] = useState(
@@ -27,30 +51,26 @@ export default function AccountInfo() {
 
     const router = useRouter();
 
-    // Dummy data for favorite albums
-    const [favoriteAlbums, setFavoriteAlbums] = useState([
-        {
-            id: 1,
-            title: 'Album One',
-            cover: 'https://via.placeholder.com/100',
-        },
-        {
-            id: 2,
-            title: 'Album Two',
-            cover: 'https://via.placeholder.com/100',
-        },
-        {
-            id: 3,
-            title: 'Album Three',
-            cover: 'https://via.placeholder.com/100',
-        },
-        {
-            id: 4,
-            title: 'Album Four',
-            cover: 'https://via.placeholder.com/100',
-        },
-    ]);
+    // Handle adding a new album from navigation params
+    useEffect(() => {
+        if (addedAlbum) {
+            try {
+                const albumData = Array.isArray(addedAlbum) ? addedAlbum[0] : addedAlbum;
+                const parsedAlbum: Album = JSON.parse(albumData);
 
+                const exists = favoriteAlbums.some(album => album.id === parsedAlbum.id);
+                if (!exists) {
+                    setFavoriteAlbums(prev => [...prev, parsedAlbum]);
+                    Alert.alert('Album Added', `${parsedAlbum.title} by ${parsedAlbum.artist} has been added to your favorites.`);
+                } else {
+                    Alert.alert('Already Added', `${parsedAlbum.title} is already in your favorites.`);
+                }
+            } catch (error) {
+                console.error('Failed to parse addedAlbum:', error);
+                Alert.alert('Error', 'Failed to add album.');
+            }
+        }
+    }, [addedAlbum]);
     const handleDismissKeyboard = () => {
         Keyboard.dismiss();
     };
@@ -122,102 +142,139 @@ export default function AccountInfo() {
     };
 
     const handleSubmit = () => {
-      if (validateInput()) {
-          console.log('Submitted:', { displayName, bio, avatarUrl });
-          Alert.alert('Success', 'Your profile has been updated!');
-      }
-  };
+        if (validateInput()) {
+            console.log('Submitted:', { displayName, bio, avatarUrl, favoriteAlbums });
+            Alert.alert('Success', 'Your profile has been updated!');
+            // Implement actual submit logic here (e.g., send data to backend)
+        }
+    };
 
-  return (
-      <SafeAreaViewAll color="white">
-          <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
-              <KeyboardAvoidingView
-                  behavior="padding"
-                  style={{ flex: 1 }}
-                  keyboardVerticalOffset={60}
-              >
-                  <ScrollView
-                      contentContainerStyle={{ flexGrow: 1, padding: 16 }}
-                      keyboardShouldPersistTaps="handled"
-                  >
-                      <Text className="text-2xl font-bold text-center mb-4">
-                          Your BeatBuddies Account
-                      </Text>
+    const handleAddFavoriteAlbum = () => {
+        router.push('/profile/addFavorite'); // Navigate to the add favorite album screen
+    };
 
-                      {/* Avatar Section */}
-                      <View className="items-center mb-6">
-                          <Image
-                              source={{ uri: avatarUrl }}
-                              className="w-24 h-24 rounded-full mb-4"
-                          />
-                          <TouchableOpacity
-                              onPress={handleImageUpload}
-                              className={`py-2 px-4 rounded-lg ${
-                                  isUploading ? 'bg-gray-300' : 'bg-blue-500'
-                              }`}
-                              disabled={isUploading}
-                          >
-                              <Text className="text-white text-sm">
-                                  {isUploading ? 'Uploading...' : 'Upload Picture'}
-                              </Text>
-                          </TouchableOpacity>
-                      </View>
+    const handleRemoveFavoriteAlbum = (albumId: string) => {
+        setFavoriteAlbums(prev => prev.filter(album => album.id !== albumId));
+        Alert.alert('Album Removed', 'The album has been removed from your favorites.');
+    };
 
-                      {/* Favorite Albums Section */}
-                      <View className="mb-6">
-                          <Text className="text-lg font-bold mb-2">Favorite Albums</Text>
-                          <View className="flex-row flex-wrap -mx-2">
-                              {favoriteAlbums.map((album) => (
-                                <TouchableOpacity
-                                    key={album.id}
-                                    className="w-1/4 px-2 border-dashed border-2 border-gray-300 rounded-lg flex items-center justify-center h-24"
-                                    onPress={() => console.log(`Add or Edit album: ${album.title}`)}
-                                    activeOpacity={0.7}
-                                >
-                                    <Text className="text-lg font-bold text-gray-400">+</Text>
-                                    <Text className="text-xs text-gray-400 text-center mt-1">Add Album</Text>
-                                </TouchableOpacity>
-                              ))}
-                          </View>
-                      </View>
-                      {/* Display Name Input */}
-                      <View className="mb-4">
-                          <Text className="text-lg font-bold mb-2">
-                              Display Name
-                          </Text>
-                          <TextInput
-                              placeholder="Your display name"
-                              value={displayName}
-                              onChangeText={setDisplayName}
-                              className="border border-gray-300 rounded-lg p-3 bg-white text-sm"
-                          />
-                      </View>
+    return (
+        <SafeAreaViewAll color="white">
+            <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
+                <KeyboardAvoidingView
+                    behavior="padding"
+                    style={{ flex: 1 }}
+                    keyboardVerticalOffset={60}
+                >
+                    <ScrollView
+                        contentContainerStyle={{ flexGrow: 1, padding: 16 }}
+                        keyboardShouldPersistTaps="handled"
+                    >
+                        <Text className="text-2xl font-bold text-center mb-4">
+                            Your BeatBuddies Account
+                        </Text>
 
-                      {/* Bio Input */}
-                      <View className="mb-4">
-                          <Text className="text-lg font-bold mb-2">Bio</Text>
-                          <TextInput
-                              placeholder="Tell us about yourself and your music taste..."
-                              value={bio}
-                              onChangeText={setBio}
-                              multiline
-                              numberOfLines={4}
-                              className="border border-gray-300 rounded-lg p-3 bg-white text-sm text-justify"
-                          />
-                      </View>
+                        {/* Avatar Section */}
+                        <View className="items-center mb-6">
+                            <Image
+                                source={{ uri: avatarUrl }}
+                                className="w-24 h-24 rounded-full mb-4"
+                            />
+                            <TouchableOpacity
+                                onPress={handleImageUpload}
+                                className={`py-2 px-4 rounded-lg ${
+                                    isUploading ? 'bg-gray-300' : 'bg-blue-500'
+                                }`}
+                                disabled={isUploading}
+                            >
+                                <Text className="text-white text-sm">
+                                    {isUploading ? 'Uploading...' : 'Upload Picture'}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
 
-                      {/* Save Changes Button */}
-                      <TouchableOpacity
-                          onPress={handleSubmit}
-                          className="py-4 rounded-lg bg-blue-500"
-                      >
-                          <Text className="text-center text-white font-semibold">
-                              Save Changes
-                          </Text>
-                      </TouchableOpacity>
-                  </ScrollView>
-              </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
-      </SafeAreaViewAll>
-  );
+{/* Favorite Albums Section */}
+<View className="mb-6">
+    <Text className="text-lg font-bold mb-2">Favorite Albums</Text>
+    <View className="flex-row flex-wrap -mx-2">
+        {favoriteAlbums.map((album) => (
+            <View
+                key={album.id}
+                className="w-1/4 px-2 mb-4"
+            >
+                <Image
+                    source={{ uri: album.albumCover }} // Changed to 'cover'
+                    className="w-full h-24 rounded-lg mb-2"
+                />
+                <Text
+                    className="text-xs text-center font-semibold"
+                    numberOfLines={1}
+                >
+                    {album.title}
+                </Text>
+                <TouchableOpacity
+                    onPress={() => handleRemoveFavoriteAlbum(album.id)}
+                    className="mt-1 py-1 px-2 bg-red-500 rounded-lg"
+                >
+                    <Text className="text-white text-xs">Remove</Text>
+                </TouchableOpacity>
+            </View>
+        ))}
+
+        {/* Add Favorite Album */}
+        <TouchableOpacity
+            className="w-1/4 px-2 mb-4"
+            onPress={handleAddFavoriteAlbum}
+            activeOpacity={0.7}
+        >
+            <View className="w-full h-24 border-dashed border-2 border-gray-300 rounded-lg flex items-center justify-center">
+                <Text className="text-lg font-bold text-gray-400">+</Text>
+                <Text className="text-xs text-gray-400 text-center mt-1">Add Album</Text>
+            </View>
+        </TouchableOpacity>
+    </View>
+</View>
+
+
+
+                        {/* Display Name Input */}
+                        <View className="mb-4">
+                            <Text className="text-lg font-bold mb-2">
+                                Display Name
+                            </Text>
+                            <TextInput
+                                placeholder="Your display name"
+                                value={displayName}
+                                onChangeText={setDisplayName}
+                                className="border border-gray-300 rounded-lg p-3 bg-white text-sm"
+                            />
+                        </View>
+
+                        {/* Bio Input */}
+                        <View className="mb-4">
+                            <Text className="text-lg font-bold mb-2">Bio</Text>
+                            <TextInput
+                                placeholder="Tell us about yourself and your music taste..."
+                                value={bio}
+                                onChangeText={setBio}
+                                multiline
+                                numberOfLines={4}
+                                className="border border-gray-300 rounded-lg p-3 bg-white text-sm text-justify"
+                            />
+                        </View>
+
+                        {/* Save Changes Button */}
+                        <TouchableOpacity
+                            onPress={handleSubmit}
+                            className="py-4 rounded-lg bg-blue-500"
+                        >
+                            <Text className="text-center text-white font-semibold">
+                                Save Changes
+                            </Text>
+                        </TouchableOpacity>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </TouchableWithoutFeedback>
+        </SafeAreaViewAll>
+    );
 }
