@@ -13,7 +13,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native'; // Upd
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { useRouter } from 'expo-router';
-
+import { addItemToUser } from '@/utils/userData';
 // Define the type for the track data
 interface Track {
     id: string;
@@ -193,7 +193,15 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 })}
 
                 {/* Submit Button */}
-                <TouchableOpacity onPress={() => console.log("Rating submitted: " + rating)} className="ml-4">
+                <TouchableOpacity onPress={async () => {
+                    console.log('Rating submitted: ' + rating);
+                    try {
+                    await addItemToUser('songs', track.id, { rating: rating, review: '' });
+                    console.log('Song added successfully');
+                    } catch (error) {
+                    console.error('Error adding song:', error);
+                    }
+                }} className="ml-4">
                     <Ionicons name="send-outline" size={32} color="#4CAF50" />
                 </TouchableOpacity>
             </View>
