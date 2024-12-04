@@ -101,12 +101,27 @@ export default function SearchScreen() {
     const router = useRouter();
 
     useEffect(() => {
-        // ... (Same as before)
+        Audio.setAudioModeAsync({
+            allowsRecordingIOS: false,
+            playsInSilentModeIOS: true,
+            staysActiveInBackground: true,
+        });
+
+        return () => {
+            if (sound) {
+                sound.unloadAsync();
+            }
+        };
     }, [sound]);
 
     useFocusEffect(
         React.useCallback(() => {
-            // ... (Same as before)
+            return () => {
+                if (sound) {
+                    sound.unloadAsync();
+                    setSound(null);
+                }
+            };
         }, [sound])
     );
 
