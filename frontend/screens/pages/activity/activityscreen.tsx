@@ -4,7 +4,6 @@ import { View, Text, ScrollView } from 'react-native';
 import ActivityCard from '@/components/activity/ActivityCard';
 import Activity from '@/types/activity';
 
-// Mock Activity Data
 const mockActivities: Activity[] = [
     {
         id: '1',
@@ -41,14 +40,13 @@ export default function ActivityPage() {
     const [activities, setActivities] = useState<Activity[]>([]);
 
     useEffect(() => {
-        // Simulate API call
         setTimeout(() => {
             setActivities(mockActivities);
         }, 1000);
     }, []);
 
     return (
-        <ScrollView className="bg-gray-100 p-5">
+        <ScrollView className="p-5">
             <Text className="text-4xl font-bold text-black mb-5">Activity Feed</Text>
             {activities.map((activity) => (
                 <ActivityCard
