@@ -91,7 +91,7 @@ export default function HomeScreen() {
     return (
         <ScrollView className="bg-gradient-to-b from-blue-900 via-black to-black">
             <Text className="text-5xl font-bold text-black text-center mt-10 mb-5">
-                Spotify Highlights
+                BeatBuddies
             </Text>
             {playlists.map(({ id, name }) => (
                 <View key={id} className="mb-10">
