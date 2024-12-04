@@ -171,6 +171,14 @@ export default function ProfilePage() {
                 />
             </View>
 
+            <View className="w-full mt-0 mb-0 border-t border-gray-200">
+                <LinkOptions
+                    title="Friends"
+                    onPress={() => router.push('/(pages)/profile/ListsPage')}
+                    color="black"
+                />
+            </View>
+
             {/* Security Options */}
             <View className="w-full mt-0 mb-0 border-t border-gray-200">
                 <Text className="text-2xl pt-4 pl-4 font-bold">

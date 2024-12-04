@@ -27,6 +27,25 @@ export default function AccountInfo() {
         Keyboard.dismiss();
     };
 
+    const validateInput = () => {
+        const displayNameRegex = /^[a-zA-Z0-9 _]{1,15}$/;
+        if (!displayNameRegex.test(displayName)) {
+            Alert.alert(
+                'Invalid Display Name',
+                'Display Name must be less than 15 characters and can only contain letters, numbers, spaces, and underscores.'
+            );
+            return false;
+        }
+        if (bio.length > 250) {
+            Alert.alert(
+                'Invalid Bio',
+                'Bio must be less than 250 characters.'
+            );
+            return false;
+        }
+        return true;
+    };
+
     const handleImageUpload = async () => {
         const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permissionResult.granted) {
@@ -75,7 +94,10 @@ export default function AccountInfo() {
     };
 
     const handleSubmit = () => {
-        console.log('Submitted:', { displayName, bio, avatarUrl });
+        if (validateInput()) {
+            console.log('Submitted:', { displayName, bio, avatarUrl });
+            Alert.alert('Success', 'Your profile has been updated!');
+        }
     };
 
     return (
