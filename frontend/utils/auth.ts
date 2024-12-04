@@ -20,7 +20,7 @@ export const sendOTP = async (phoneNumber: string, recaptchaVerifier: any) => {
 };
 
 // Verify the OTP
-export const verifyOTP = async (otp: string) => {
+export const verifyOTP = async (otp: string, confirmationResult: any) => {
     if (!confirmationResult) {
         throw new Error('No confirmation result found');
     }
