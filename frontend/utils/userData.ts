@@ -5,6 +5,7 @@ import {
   collection,
   doc,
   setDoc,
+  getDoc,
   getDocs,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -68,6 +69,35 @@ export const getUserItems = async (
     return items;
   } catch (error) {
     console.error(`Error fetching user's ${collectionName}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Retrieves a specific item from the user's subcollection.
+ *
+ * @param collectionName - The name of the subcollection ('albums', 'songs', 'artists')
+ * @param itemId - The ID of the item (from Spotify API)
+ * @returns The user's item data or null if not found
+ */
+export const getUserItem = async (
+  collectionName: 'albums' | 'songs' | 'artists',
+  itemId: string
+): Promise<(UserItemData & { itemId: string }) | null> => {
+  try {
+    const userId = auth.currentUser?.uid;
+    if (!userId) throw new Error('User not authenticated');
+
+    const userItemRef = doc(db, `users/${userId}/${collectionName}`, itemId);
+    const userItemSnap = await getDoc(userItemRef);
+
+    if (userItemSnap.exists()) {
+      return { itemId: userItemSnap.id, ...(userItemSnap.data() as UserItemData) };
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error(`Error fetching user's ${collectionName} item:`, error);
     throw error;
   }
 };
