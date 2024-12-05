@@ -202,6 +202,27 @@ export default function ProfilePage() {
         }, [theiruuid])
     );
 
+    const goToFriendAlbums = () => {
+        router.push({
+            pathname: '/(pages)/profile/friendAlbums',
+            params: { theiruuid },
+        });
+    }
+
+    const goToFriendArtists = () => {
+        router.push({
+            pathname: '/(pages)/profile/friendArtist',
+            params: { theiruuid },
+        });
+    }
+
+    const goToFriendSongs = () => {
+        router.push({
+            pathname: '/(pages)/profile/friendSong',
+            params: { theiruuid },
+        });
+    }
+
     const copyToClipboard = (text: string) => {
         Clipboard.setStringAsync(text);
         Alert.alert("Copied to Clipboard", text);
@@ -327,7 +348,7 @@ export default function ProfilePage() {
                 <View className="w-full mt-0 mb-0 border-t border-gray-200">
                     <LinkOptions
                         title="Albums"
-                        onPress={() => router.push('/(pages)/profile/albumGallery')}
+                        onPress={() => goToFriendAlbums()}
                         color="black"
                     />
                 </View>
@@ -335,7 +356,7 @@ export default function ProfilePage() {
                 <View className="w-full mt-0 mb-0 border-t border-gray-200">
                     <LinkOptions
                         title="Songs"
-                        onPress={() => router.push('/(pages)/profile/songGallery')}
+                        onPress={() => goToFriendSongs()}
                         color="black"
                     />
                 </View>
@@ -343,7 +364,7 @@ export default function ProfilePage() {
                 <View className="w-full mt-0 mb-0 border-t border-gray-200">
                     <LinkOptions
                         title="Artists"
-                        onPress={() => router.push('/(pages)/profile/artistGallery')}
+                        onPress={() => goToFriendArtists()}
                         color="black"
                     />
                 </View>
