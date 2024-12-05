@@ -43,6 +43,7 @@
     "react-native": "0.74.5",
     "react-native-css-interop": "^0.1.20",
     "react-native-dotenv": "^3.4.11",
+    "react-native-feather": "^1.1.2",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-heroicons": "^4.0.0",
     "react-native-paper": "^5.12.5",
