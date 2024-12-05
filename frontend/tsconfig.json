@@ -18,5 +18,5 @@
     "expo-env.d.ts",
     "env.d.ts",
     "src/**/*" // adjust if needed based on your folder structure
-  ]
+, "app/(pages)/home/[songId]"  ]
 }

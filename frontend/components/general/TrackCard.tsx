@@ -87,7 +87,7 @@ const TrackCard: React.FC<TrackCardProps> = ({ track }) => {
     return (
         <TouchableOpacity
             className="mr-4 w-36"
-            onPress={() => router.push(`/(pages)/search/${track.id}`)}
+            onPress={() => router.push(`/(pages)/home/${track.id}`)}
         >
             <View className="w-full flex justify-center items-center">
                 <Image
