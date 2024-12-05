@@ -264,3 +264,30 @@ export const getFavoriteAlbums = async (): Promise<Album[]> => {
         return []; // Return empty array if no collection exists
     }
 };
+
+/**
+ * Retrieves all items from the specified user's subcollection.
+ *
+ * @param userUuid - The UUID of the user whose items should be retrieved
+ * @param collectionName - The name of the subcollection ('albums', 'songs', 'artists')
+ * @returns An array of items with their IDs and user-specific data
+ */
+export const getFriendItems = async (
+    userUuid: string,
+    collectionName: 'albums' | 'songs' | 'artists'
+): Promise<({ itemId: string } & UserItemData)[]> => {
+    try {
+        if (!userUuid) throw new Error('No user UUID provided');
+
+        const userItemsRef = collection(db, `users/${userUuid}/${collectionName}`);
+        const userItemsSnapshot = await getDocs(userItemsRef);
+
+        return userItemsSnapshot.docs.map((doc) => ({
+            itemId: doc.id,
+            ...(doc.data() as UserItemData),
+        }));
+    } catch (error) {
+        console.error(`Error fetching user ${userUuid}'s ${collectionName}:`, error);
+        throw error;
+    }
+};
