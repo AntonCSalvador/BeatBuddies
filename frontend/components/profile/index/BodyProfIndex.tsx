@@ -409,6 +409,11 @@ export default function ProfilePage() {
                     onPress={() => router.push('/(pages)/profile/accountInfo')}
                     color="black"
                 />
+                <LinkOptions
+                    title="Test Button"
+                    onPress={() => router.push('/(pages)/profile/{`uuid`}')}
+                    color="black"
+                />
                 <Pressable 
                     onPress={() => {copyToClipboard(uuid)}}
                     className="flex-row items-center justify-between mr-3 active:bg-gray-100"
