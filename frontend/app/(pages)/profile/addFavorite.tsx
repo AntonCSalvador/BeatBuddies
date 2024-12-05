@@ -13,6 +13,7 @@ import {
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import { useRouter } from 'expo-router';
 import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
+import { addFavoriteAlbum } from '@/utils/userData';
 
 interface Album {
     id: string;
@@ -83,12 +84,14 @@ export default function AddFavorite() {
         }
     };
 
-    const handleAddAlbum = (album: Album) => {
-        const serializedAlbum = JSON.stringify(album);
-        router.push(
-            `/profile/accountInfo?addedAlbum=${encodeURIComponent(serializedAlbum)}`
-        );
-        // Alternatively, use router.back() with params if supported
+    const handleAddAlbum = async (album: Album) => {
+        try {
+            await addFavoriteAlbum(album); // Add directly to the favorites collection
+            router.back(); // Navigate back to the AccountInfo screen
+        } catch (error) {
+            console.error('Error adding album:', error);
+            Alert.alert('Error', 'Failed to add album to favorites.');
+        }
     };
 
     return (

@@ -23,6 +23,13 @@ export interface FriendData {
     profileImageLink: string;
 }
 
+export interface Album {
+    id: string;
+    name: string;
+    artist: string;
+    albumCover: string;
+}
+
 /**
  * Adds an item (album, song, or artist) to the user's subcollection.
  *
@@ -211,5 +218,49 @@ export const getFriend = async (
     } catch (error) {
         console.error('Error fetching friend:', error);
         throw error;
+    }
+};
+
+export const addFavoriteAlbum = async (album: Album) => {
+    try {
+        const userId = auth.currentUser?.uid;
+        if (!userId) throw new Error('User not authenticated');
+
+        const albumRef = doc(db, `users/${userId}/favorites`, album.id);
+        await setDoc(albumRef, {
+            id: album.id,
+            name: album.name,
+            artist: album.artist,
+            albumCover: album.albumCover,
+        });
+
+        console.log(`Album ${album.name} added to favorites.`);
+    } catch (error) {
+        console.error('Error adding album to favorites:', error);
+        throw error;
+    }
+};
+
+/**
+ * Fetches the user's favorite albums.
+ *
+ * @returns An array of albums
+ */
+export const getFavoriteAlbums = async (): Promise<Album[]> => {
+    try {
+        const userId = auth.currentUser?.uid;
+        if (!userId) throw new Error('User not authenticated');
+
+        const favoritesRef = collection(db, `users/${userId}/favorites`);
+        const favoritesSnapshot = await getDocs(favoritesRef);
+
+        const albums = favoritesSnapshot.docs.map((doc) => ({
+            ...(doc.data() as Album),
+        }));
+
+        return albums;
+    } catch (error) {
+        console.error('Error fetching favorite albums:', error);
+        return []; // Return empty array if no collection exists
     }
 };

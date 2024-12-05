@@ -181,7 +181,7 @@ export default function ArtistGallery() {
         <TouchableOpacity
             onPress={() => {
                 console.log('Navigating to ID:', item.id);
-                router.push(`/(pages)/search/${item.id}`);
+                router.push(`/(pages)/profile/tracks/${item.id}`);
             }}
             className="flex-1 m-2 p-2 bg-gray-100 rounded-md"
         >
