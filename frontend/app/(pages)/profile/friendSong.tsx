@@ -67,8 +67,10 @@ export default function SongGallery() {
                 setLoading(true);
 
                 // Fetch the user's songs from your database
-                const userSongsArray: UserSongItem[] =
-                    await getFriendItems(userUuid, 'songs');
+                const userSongsArray: UserSongItem[] = await getFriendItems(
+                    userUuid,
+                    'songs'
+                );
                 console.log('User Songs Array:', userSongsArray);
 
                 if (!userSongsArray || userSongsArray.length === 0) {

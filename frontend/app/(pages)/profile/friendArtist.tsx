@@ -70,8 +70,10 @@ export default function ArtistGallery() {
                 setLoading(true);
 
                 // Fetch the user's artists from your database
-                const userArtistsArray: UserArtistItem[] =
-                    await getFriendItems(userUuid, 'artists');
+                const userArtistsArray: UserArtistItem[] = await getFriendItems(
+                    userUuid,
+                    'artists'
+                );
                 console.log('User Artists Array:', userArtistsArray);
 
                 if (!userArtistsArray || userArtistsArray.length === 0) {

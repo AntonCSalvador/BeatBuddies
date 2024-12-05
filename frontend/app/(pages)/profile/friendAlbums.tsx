@@ -69,8 +69,10 @@ export default function AlbumGallery() {
                 setLoading(true);
 
                 // Fetch the user's albums from your database
-                const userAlbumsArray: UserAlbumItem[] =
-                    await getFriendItems(userUuid, 'albums');
+                const userAlbumsArray: UserAlbumItem[] = await getFriendItems(
+                    userUuid,
+                    'albums'
+                );
                 console.log('User Albums Array:', userAlbumsArray);
 
                 if (!userAlbumsArray || userAlbumsArray.length === 0) {

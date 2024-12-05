@@ -279,7 +279,10 @@ export const getFriendItems = async (
     try {
         if (!userUuid) throw new Error('No user UUID provided');
 
-        const userItemsRef = collection(db, `users/${userUuid}/${collectionName}`);
+        const userItemsRef = collection(
+            db,
+            `users/${userUuid}/${collectionName}`
+        );
         const userItemsSnapshot = await getDocs(userItemsRef);
 
         return userItemsSnapshot.docs.map((doc) => ({
@@ -287,7 +290,10 @@ export const getFriendItems = async (
             ...(doc.data() as UserItemData),
         }));
     } catch (error) {
-        console.error(`Error fetching user ${userUuid}'s ${collectionName}:`, error);
+        console.error(
+            `Error fetching user ${userUuid}'s ${collectionName}:`,
+            error
+        );
         throw error;
     }
 };
