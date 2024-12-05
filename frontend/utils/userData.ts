@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 
 // TypeScript interface for user data
-export  interface UserItemData {
+export interface UserItemData {
     rating: number;
     review: string;
     createdAt?: any;
@@ -141,14 +141,16 @@ export const addFriend = async (friendUuid: string) => {
         console.error('Error adding friend:', error);
         throw error;
     }
-}
+};
 
 /**
  * Retrieves the friends' full data from the user's friends subcollection.
  *
  * @returns An array of friends with their UUIDs, names, bios, and profile pictures
  */
-export const getFriends = async (): Promise<(FriendData & { uuid: string })[]> => {
+export const getFriends = async (): Promise<
+    (FriendData & { uuid: string })[]
+> => {
     try {
         const userId = auth.currentUser?.uid;
         if (!userId) throw new Error('User not authenticated');
@@ -173,7 +175,9 @@ export const getFriends = async (): Promise<(FriendData & { uuid: string })[]> =
             })
         );
 
-        return friends.filter((friend) => friend !== null) as (FriendData & { uuid: string })[];
+        return friends.filter((friend) => friend !== null) as (FriendData & {
+            uuid: string;
+        })[];
     } catch (error) {
         console.error('Error fetching friends:', error);
         throw error;
@@ -209,4 +213,3 @@ export const getFriend = async (
         throw error;
     }
 };
-

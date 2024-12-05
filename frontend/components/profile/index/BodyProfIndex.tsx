@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, ScrollView, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -13,10 +13,30 @@ export default function ProfilePage() {
 
     // Dummy data for favorite albums
     const favoriteAlbums = [
-        { id: '1', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png', title: 'Album 1' },
-        { id: '2', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png', title: 'Album 2' },
-        { id: '3', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png', title: 'Album 3' },
-        { id: '4', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/d/dc/Clairo_-_Charm.png', title: 'Album 4' },
+        {
+            id: '1',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png',
+            title: 'Album 1',
+        },
+        {
+            id: '2',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png',
+            title: 'Album 2',
+        },
+        {
+            id: '3',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png',
+            title: 'Album 3',
+        },
+        {
+            id: '4',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/d/dc/Clairo_-_Charm.png',
+            title: 'Album 4',
+        },
         // Add more albums as needed
     ];
 
@@ -32,7 +52,8 @@ export default function ProfilePage() {
         {
             id: '1',
             type: 'song', // Can be 'song', 'album', or 'artist'
-            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png',
             songTitle: 'Ceilings',
             artistName: 'Beabadoobee',
             rating: 4.5,
@@ -40,7 +61,8 @@ export default function ProfilePage() {
         {
             id: '2',
             type: 'album',
-            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png',
             albumTitle: 'Flower Boy',
             artistName: 'Tyler, the Creator',
             rating: 5,
@@ -48,12 +70,12 @@ export default function ProfilePage() {
         {
             id: '3',
             type: 'artist',
-            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png',
             artistName: 'Coldplay',
             rating: 4,
         },
     ];
-    
 
     const confirmSignOut = () => {
         Alert.alert(
@@ -75,48 +97,54 @@ export default function ProfilePage() {
 
     useFocusEffect(
         React.useCallback(() => {
-          let isActive = true;
-    
-          const fetchProfileData = async () => {
-            setLoading(true);
-            try {
-              const user = auth.currentUser;
-              if (!user) {
-                throw new Error('No user is currently signed in.');
-              }
-    
-              const userRef = doc(db, 'users', user.uid);
-              const userSnapshot = await getDoc(userRef);
-    
-              if (userSnapshot.exists()) {
-                const data = userSnapshot.data();
-                if (isActive) {
-                  setProfileData({
-                    displayName: data.displayName || 'No name provided',
-                    bio: data.Bio || 'No bio provided',
-                    avatarUrl: data.profileImageLink || 'https://via.placeholder.com/100',
-                  });
+            let isActive = true;
+
+            const fetchProfileData = async () => {
+                setLoading(true);
+                try {
+                    const user = auth.currentUser;
+                    if (!user) {
+                        throw new Error('No user is currently signed in.');
+                    }
+
+                    const userRef = doc(db, 'users', user.uid);
+                    const userSnapshot = await getDoc(userRef);
+
+                    if (userSnapshot.exists()) {
+                        const data = userSnapshot.data();
+                        if (isActive) {
+                            setProfileData({
+                                displayName:
+                                    data.displayName || 'No name provided',
+                                bio: data.Bio || 'No bio provided',
+                                avatarUrl:
+                                    data.profileImageLink ||
+                                    'https://via.placeholder.com/100',
+                            });
+                        }
+                    } else {
+                        throw new Error('User document does not exist.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching profile data:', error);
+                    Alert.alert(
+                        'Error',
+                        'Failed to fetch profile information.'
+                    );
+                } finally {
+                    if (isActive) {
+                        setLoading(false);
+                    }
                 }
-              } else {
-                throw new Error('User document does not exist.');
-              }
-            } catch (error) {
-              console.error('Error fetching profile data:', error);
-              Alert.alert('Error', 'Failed to fetch profile information.');
-            } finally {
-              if (isActive) {
-                setLoading(false);
-              }
-            }
-          };
-    
-          fetchProfileData();
-    
-          return () => {
-            isActive = false;
-          };
+            };
+
+            fetchProfileData();
+
+            return () => {
+                isActive = false;
+            };
         }, [])
-      );
+    );
 
     return (
         <ScrollView className="flex-1 bg-white">
@@ -126,7 +154,9 @@ export default function ProfilePage() {
                     source={{ uri: profileData.avatarUrl }}
                     className="w-24 h-24 rounded-full mb-2"
                 />
-                <Text className="text-2xl font-bold">{profileData.displayName}</Text>
+                <Text className="text-2xl font-bold">
+                    {profileData.displayName}
+                </Text>
                 <Text className="text-gray-600">{profileData.bio}</Text>
             </View>
 
@@ -156,7 +186,11 @@ export default function ProfilePage() {
                         <Pressable
                             key={activity.id}
                             className="flex-row items-start mb-4 bg-gray-100 p-3 rounded-lg"
-                            onPress={() => console.log(`Pressed activity ID: ${activity.id}`)} //okay here just do router.push(`/(pages)/search/${activity.id}`); something like that instead of the console.log
+                            onPress={() =>
+                                console.log(
+                                    `Pressed activity ID: ${activity.id}`
+                                )
+                            } //okay here just do router.push(`/(pages)/search/${activity.id}`); something like that instead of the console.log
                         >
                             {/* Cover Image */}
                             <Image
@@ -202,9 +236,17 @@ export default function ProfilePage() {
                                         />
                                     ))}
                                     {hasHalfStar && (
-                                        <Ionicons name="star-half" size={16} color="#FFD700" />
+                                        <Ionicons
+                                            name="star-half"
+                                            size={16}
+                                            color="#FFD700"
+                                        />
                                     )}
-                                    {[...Array(5 - Math.ceil(activity.rating))].map((_, index) => (
+                                    {[
+                                        ...Array(
+                                            5 - Math.ceil(activity.rating)
+                                        ),
+                                    ].map((_, index) => (
                                         <Ionicons
                                             key={`star-outline-${activity.id}-${index}`}
                                             name="star-outline"
@@ -218,7 +260,6 @@ export default function ProfilePage() {
                     );
                 })}
             </View>
-
 
             {/* Navigation Links (Using LinkOptions) */}
             {/* Profile Options */}
@@ -258,7 +299,9 @@ export default function ProfilePage() {
             <View className="w-full mt-0 mb-0 border-t border-gray-200">
                 <LinkOptions
                     title="Artists"
-                    onPress={() => router.push('/(pages)/profile/artistGallery')}
+                    onPress={() =>
+                        router.push('/(pages)/profile/artistGallery')
+                    }
                     color="black"
                 />
             </View>

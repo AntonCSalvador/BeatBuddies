@@ -8,7 +8,9 @@ import { FriendData } from '@/utils/userData';
 
 export default function FriendsGallery() {
     const router = useRouter();
-    const [friends, setFriends] = useState<(FriendData & { uuid: string })[]>([]);
+    const [friends, setFriends] = useState<(FriendData & { uuid: string })[]>(
+        []
+    );
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -40,9 +42,17 @@ export default function FriendsGallery() {
             />
             {/* Friend Details */}
             <View style={{ marginLeft: 16, flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#000' }}>{item.displayName}</Text>
-                <Text style={{ fontSize: 12, color: '#555' }}>@{item.uuid}</Text>
-                <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>{item.bio}</Text>
+                <Text
+                    style={{ fontSize: 16, fontWeight: 'bold', color: '#000' }}
+                >
+                    {item.displayName}
+                </Text>
+                <Text style={{ fontSize: 12, color: '#555' }}>
+                    @{item.uuid}
+                </Text>
+                <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
+                    {item.bio}
+                </Text>
             </View>
         </View>
     );
@@ -61,8 +71,15 @@ export default function FriendsGallery() {
                 {/* Header */}
                 <View className="flex-row justify-between items-center mb-6">
                     <Text className="text-2xl font-bold">Your Friends</Text>
-                    <TouchableOpacity onPress={handleAddFriend} className="p-2 bg-blue-500 rounded-md">
-                        <Ionicons name="person-add-outline" size={24} color="white" />
+                    <TouchableOpacity
+                        onPress={handleAddFriend}
+                        className="p-2 bg-blue-500 rounded-md"
+                    >
+                        <Ionicons
+                            name="person-add-outline"
+                            size={24}
+                            color="white"
+                        />
                     </TouchableOpacity>
                 </View>
 

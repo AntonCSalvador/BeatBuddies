@@ -80,18 +80,25 @@ export default function AccountInfo() {
     useEffect(() => {
         if (addedAlbum) {
             try {
-                const albumData = Array.isArray(addedAlbum) ? addedAlbum[0] : addedAlbum;
+                const albumData = Array.isArray(addedAlbum)
+                    ? addedAlbum[0]
+                    : addedAlbum;
                 const parsedAlbum: Album = JSON.parse(albumData);
 
-                const exists = favoriteAlbums.some(album => album.id === parsedAlbum.id);
+                const exists = favoriteAlbums.some(
+                    (album) => album.id === parsedAlbum.id
+                );
                 if (!exists) {
-                    setFavoriteAlbums(prev => [...prev, parsedAlbum]);
+                    setFavoriteAlbums((prev) => [...prev, parsedAlbum]);
                     Alert.alert(
                         'Album Added',
                         `${parsedAlbum.title} by ${parsedAlbum.artist} has been added to your favorites.`
                     );
                 } else {
-                    Alert.alert('Already Added', `${parsedAlbum.title} is already in your favorites.`);
+                    Alert.alert(
+                        'Already Added',
+                        `${parsedAlbum.title} is already in your favorites.`
+                    );
                 }
             } catch (error) {
                 console.error('Failed to parse addedAlbum:', error);
@@ -121,9 +128,13 @@ export default function AccountInfo() {
     };
 
     const handleImageUpload = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const permissionResult =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permissionResult.granted) {
-            Alert.alert('Permission Required', 'Please allow access to the media library.');
+            Alert.alert(
+                'Permission Required',
+                'Please allow access to the media library.'
+            );
             return;
         }
 
@@ -160,7 +171,10 @@ export default function AccountInfo() {
             setAvatarUrl(data.secure_url);
             Alert.alert('Upload Successful', 'Your picture has been uploaded.');
         } catch (error) {
-            Alert.alert('Upload Failed', 'Something went wrong during the upload.');
+            Alert.alert(
+                'Upload Failed',
+                'Something went wrong during the upload.'
+            );
             console.error(error);
         } finally {
             setIsUploading(false);
@@ -188,11 +202,19 @@ export default function AccountInfo() {
                     favoriteAlbums: favoriteAlbums, // Save favorite albums
                 });
 
-                console.log('Profile updated:', { displayName, bio, avatarUrl, favoriteAlbums });
+                console.log('Profile updated:', {
+                    displayName,
+                    bio,
+                    avatarUrl,
+                    favoriteAlbums,
+                });
                 Alert.alert('Success', 'Your profile has been updated!');
             } catch (error) {
                 console.error('Error updating profile:', error);
-                Alert.alert('Error', 'Failed to update your profile. Please try again.');
+                Alert.alert(
+                    'Error',
+                    'Failed to update your profile. Please try again.'
+                );
             }
         }
     };
@@ -202,8 +224,13 @@ export default function AccountInfo() {
     };
 
     const handleRemoveFavoriteAlbum = (albumId: string) => {
-        setFavoriteAlbums(prev => prev.filter(album => album.id !== albumId));
-        Alert.alert('Album Removed', 'The album has been removed from your favorites.');
+        setFavoriteAlbums((prev) =>
+            prev.filter((album) => album.id !== albumId)
+        );
+        Alert.alert(
+            'Album Removed',
+            'The album has been removed from your favorites.'
+        );
     };
 
     if (isLoading) {
@@ -245,14 +272,18 @@ export default function AccountInfo() {
                                 disabled={isUploading}
                             >
                                 <Text className="text-white text-sm">
-                                    {isUploading ? 'Uploading...' : 'Upload Picture'}
+                                    {isUploading
+                                        ? 'Uploading...'
+                                        : 'Upload Picture'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
 
                         {/* Favorite Albums Section */}
                         <View className="mb-6">
-                            <Text className="text-lg font-bold mb-2">Favorite Albums</Text>
+                            <Text className="text-lg font-bold mb-2">
+                                Favorite Albums
+                            </Text>
                             <View className="flex-row flex-wrap -mx-2">
                                 {favoriteAlbums.map((album) => (
                                     <View
@@ -270,10 +301,16 @@ export default function AccountInfo() {
                                             {album.title}
                                         </Text>
                                         <TouchableOpacity
-                                            onPress={() => handleRemoveFavoriteAlbum(album.id)}
+                                            onPress={() =>
+                                                handleRemoveFavoriteAlbum(
+                                                    album.id
+                                                )
+                                            }
                                             className="mt-1 py-1 px-2 bg-red-500 rounded-lg"
                                         >
-                                            <Text className="text-white text-xs">Remove</Text>
+                                            <Text className="text-white text-xs">
+                                                Remove
+                                            </Text>
                                         </TouchableOpacity>
                                     </View>
                                 ))}
@@ -285,8 +322,12 @@ export default function AccountInfo() {
                                     activeOpacity={0.7}
                                 >
                                     <View className="w-full h-24 border-dashed border-2 border-gray-300 rounded-lg flex items-center justify-center">
-                                        <Text className="text-lg font-bold text-gray-400">+</Text>
-                                        <Text className="text-xs text-gray-400 text-center mt-1">Add Album</Text>
+                                        <Text className="text-lg font-bold text-gray-400">
+                                            +
+                                        </Text>
+                                        <Text className="text-xs text-gray-400 text-center mt-1">
+                                            Add Album
+                                        </Text>
                                     </View>
                                 </TouchableOpacity>
                             </View>
@@ -294,7 +335,9 @@ export default function AccountInfo() {
 
                         {/* Display Name Input */}
                         <View className="mb-4">
-                            <Text className="text-lg font-bold mb-2">Display Name</Text>
+                            <Text className="text-lg font-bold mb-2">
+                                Display Name
+                            </Text>
                             <TextInput
                                 placeholder="Your display name"
                                 value={displayName}

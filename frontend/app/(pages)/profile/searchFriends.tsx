@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TextInput, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import {
+    View,
+    Text,
+    FlatList,
+    TextInput,
+    Image,
+    TouchableOpacity,
+    ActivityIndicator,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 import { addFriend } from '@/utils/userData';
@@ -17,7 +25,6 @@ export default function SearchFriends() {
         setSearchResult([]); // Clear previous results
 
         try {
-            
             const user = await searchUserByUUID(searchQuery.trim());
             if (user) {
                 setSearchResult([user]); // Wrap in array for FlatList
@@ -49,13 +56,25 @@ export default function SearchFriends() {
             />
             {/* User Details */}
             <View style={{ marginLeft: 16, flex: 1 }}>
-                <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#000' }}>{item.name}</Text>
-                <Text style={{ fontSize: 12, color: '#555' }}>@{item.uuid}</Text>
-                <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>{item.bio}</Text>
+                <Text
+                    style={{ fontSize: 16, fontWeight: 'bold', color: '#000' }}
+                >
+                    {item.name}
+                </Text>
+                <Text style={{ fontSize: 12, color: '#555' }}>
+                    @{item.uuid}
+                </Text>
+                <Text style={{ fontSize: 12, color: '#999', marginTop: 4 }}>
+                    {item.bio}
+                </Text>
             </View>
             {/* Add Friend Button */}
             <TouchableOpacity
-                style={{ padding: 8, backgroundColor: '#007BFF', borderRadius: 50 }}
+                style={{
+                    padding: 8,
+                    backgroundColor: '#007BFF',
+                    borderRadius: 50,
+                }}
                 onPress={() => handleAddFriend(item.uuid)}
             >
                 <Ionicons name="person-add-outline" size={20} color="white" />
@@ -65,10 +84,20 @@ export default function SearchFriends() {
 
     return (
         <SafeAreaViewAll color="white">
-            <View style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 24 }}>
+            <View
+                style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 24 }}
+            >
                 {/* Header */}
                 <View style={{ marginBottom: 16 }}>
-                    <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 8 }}>Search Friends</Text>
+                    <Text
+                        style={{
+                            fontSize: 24,
+                            fontWeight: 'bold',
+                            marginBottom: 8,
+                        }}
+                    >
+                        Search Friends
+                    </Text>
                     <View style={{ position: 'relative' }}>
                         <Ionicons
                             name="search-outline"
@@ -98,7 +127,13 @@ export default function SearchFriends() {
                 </View>
 
                 {/* Loading Indicator */}
-                {loading && <ActivityIndicator size="large" color="#007BFF" style={{ marginTop: 16 }} />}
+                {loading && (
+                    <ActivityIndicator
+                        size="large"
+                        color="#007BFF"
+                        style={{ marginTop: 16 }}
+                    />
+                )}
 
                 {/* Friends List */}
                 <FlatList
@@ -109,9 +144,13 @@ export default function SearchFriends() {
                 />
 
                 {/* No Results */}
-                {!loading && searchResult.length === 0 && searchQuery.trim() !== '' && (
-                    <Text style={{ textAlign: 'center', color: '#555' }}>No users found.</Text>
-                )}
+                {!loading &&
+                    searchResult.length === 0 &&
+                    searchQuery.trim() !== '' && (
+                        <Text style={{ textAlign: 'center', color: '#555' }}>
+                            No users found.
+                        </Text>
+                    )}
             </View>
         </SafeAreaViewAll>
     );

@@ -42,13 +42,17 @@ export default function ListsPage() {
                     <Text className="text-3xl font-bold">Lists</Text>
                 </View>
 
-        {/* Create New List Button */}
-        <TouchableOpacity
-          onPress={() => router.push('/(pages)/profile/CreateNewList')} //create new page here
-          className="m-4 p-4 bg-blue-500 rounded-lg items-center"
-        >
-          <Text className="text-white font-bold">Create New List</Text>
-        </TouchableOpacity>
+                {/* Create New List Button */}
+                <TouchableOpacity
+                    onPress={() =>
+                        router.push('/(pages)/profile/CreateNewList')
+                    } //create new page here
+                    className="m-4 p-4 bg-blue-500 rounded-lg items-center"
+                >
+                    <Text className="text-white font-bold">
+                        Create New List
+                    </Text>
+                </TouchableOpacity>
 
                 {/* Content */}
                 <View className="p-4">

@@ -17,7 +17,7 @@ export default function ProfileMusicPage() {
     const resolvedSongId = Array.isArray(songId) ? songId[0] : songId;
 
     useEffect(() => {
-        console.log(songId); 
+        console.log(songId);
         if (!resolvedSongId) {
             setError('No song ID provided.');
             return;
@@ -28,10 +28,10 @@ export default function ProfileMusicPage() {
                 if (await trackCheck(resolvedSongId)) {
                     setTab(1);
                 } else if (await albumCheck(resolvedSongId)) {
-                    console.log("in the album check");
+                    console.log('in the album check');
                     setTab(2);
                 } else if (await artistCheck(resolvedSongId)) {
-                    console.log("in the artist check");
+                    console.log('in the artist check');
                     setTab(3);
                 } else {
                     setError('No matching data found for the provided ID.');
@@ -89,11 +89,14 @@ async function getAccessToken() {
 async function trackCheck(id: string): Promise<boolean> {
     try {
         const token = await getAccessToken();
-        const response = await fetch(`https://api.spotify.com/v1/tracks/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const response = await fetch(
+            `https://api.spotify.com/v1/tracks/${id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
 
         return response.ok; // Return true if track exists
     } catch (error) {
@@ -104,11 +107,14 @@ async function trackCheck(id: string): Promise<boolean> {
 async function albumCheck(id: string): Promise<boolean> {
     try {
         const token = await getAccessToken();
-        const response = await fetch(`https://api.spotify.com/v1/albums/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const response = await fetch(
+            `https://api.spotify.com/v1/albums/${id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
 
         return response.ok; // Return true if album exists
     } catch (error) {
@@ -119,11 +125,14 @@ async function albumCheck(id: string): Promise<boolean> {
 async function artistCheck(id: string): Promise<boolean> {
     try {
         const token = await getAccessToken();
-        const response = await fetch(`https://api.spotify.com/v1/artists/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const response = await fetch(
+            `https://api.spotify.com/v1/artists/${id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
 
         return response.ok; // Return true if artist exists
     } catch (error) {
