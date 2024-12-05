@@ -12,24 +12,24 @@ export default function ListsPage() {
     const lists = [
         {
             id: '1',
-            title: 'Top Albums of 2023',
-            description: 'A curated list of the best albums released in 2023.',
+            title: 'Top Albums of 2024',
+            description: 'A curated list of the best albums released in 2024.',
             itemCount: 15,
-            coverImage: 'https://via.placeholder.com/300',
+            coverImage: 'https://i8.amplience.net/i/naras/2024_grammys_general_key_art_euphoria_right_alined.jpg',
         },
         {
             id: '2',
             title: 'All-Time Favorite Songs',
             description: 'Songs that have stood the test of time.',
             itemCount: 25,
-            coverImage: 'https://via.placeholder.com/300',
+            coverImage: 'https://static.tvtropes.org/pmwiki/pub/images/follow_your_nose.png',
         },
         {
             id: '3',
             title: 'Best Indie Artists',
             description: 'Highlighting the best indie music artists.',
             itemCount: 10,
-            coverImage: 'https://via.placeholder.com/300',
+            coverImage: 'https://wfuv.org/sites/default/files/images/posts/SliderBeabadoobee%20-%202023%2001%20-%20please%20credit%20Jacob%20Erland.jpg',
         },
         // Add more lists as needed
     ];

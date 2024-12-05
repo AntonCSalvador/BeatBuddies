@@ -10,6 +10,7 @@ import { useFocusEffect } from 'expo-router';
 import { getDocs, collection } from 'firebase/firestore';
 import { Album } from '@/utils/userData';
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
+import * as Clipboard from 'expo-clipboard'; // Install this if you're using Expo
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -209,6 +210,15 @@ export default function ProfilePage() {
         }, [])
     );
 
+    const copyToClipboard = (text: string) => {
+        Clipboard.setStringAsync(text); // Copies the text to clipboard
+        Alert.alert("Copied to Clipboard", text); // Show confirmation (optional)
+    };
+
+    const user = auth.currentUser;
+    if (!user) return;
+    const uuid = user.uid;
+
     return (
         <ScrollView className="flex-1 bg-white">
             {/* Header Section */}
@@ -399,6 +409,18 @@ export default function ProfilePage() {
                     onPress={() => router.push('/(pages)/profile/accountInfo')}
                     color="black"
                 />
+                <LinkOptions
+                    title="Test Button"
+                    onPress={() => router.push(`/(pages)/profile/${uuid}`)}
+                    color="black"
+                />
+                <Pressable 
+                    onPress={() => {copyToClipboard(uuid)}}
+                    className="flex-row items-center justify-between mr-3 active:bg-gray-100"
+                >
+                    <Text className="text-m pl-4 font-bold">{uuid}</Text>
+                    <Ionicons name="copy-outline" size={18} color="black" />
+                </Pressable>
                 <LinkOptions
                     title="Sign Out"
                     onPress={confirmSignOut}
