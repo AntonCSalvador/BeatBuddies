@@ -33,7 +33,9 @@ export default function FriendsGallery() {
     };
 
     const renderItem = ({ item }: { item: FriendData & { uuid: string } }) => (
-        <View className="flex-row items-center p-3 rounded-lg bg-gray-100 mb-2">
+        <TouchableOpacity 
+            onPress={() => router.push(`/(pages)/profile/${item.uuid}`)}
+            className="flex-row items-center p-3 rounded-lg bg-gray-100 mb-2">
             {/* Avatar */}
             <Image
                 source={{ uri: item.profileImageLink }}
@@ -54,7 +56,7 @@ export default function FriendsGallery() {
                     {item.bio}
                 </Text>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 
     if (loading) {
