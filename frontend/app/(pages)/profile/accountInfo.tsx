@@ -147,14 +147,17 @@ export default function AccountInfo() {
     const getSpotifyAccessToken = async (): Promise<string> => {
         try {
             const credentials = `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`;
-            const response = await fetch('https://accounts.spotify.com/api/token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: `Basic ${btoa(credentials)}`,
-                },
-                body: 'grant_type=client_credentials',
-            });
+            const response = await fetch(
+                'https://accounts.spotify.com/api/token',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Authorization: `Basic ${btoa(credentials)}`,
+                    },
+                    body: 'grant_type=client_credentials',
+                }
+            );
 
             const data = await response.json();
             if (!response.ok) {
@@ -216,21 +219,21 @@ export default function AccountInfo() {
             );
             return;
         }
-    
+
         const pickerResult = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1,
         });
-    
+
         if (pickerResult.canceled) {
             return;
         }
-    
+
         const { uri, type: mimeType } = pickerResult.assets[0];
         const fileName = uri.split('/').pop();
         setIsUploading(true);
-    
+
         try {
             const formData = new FormData();
             formData.append('file', {
@@ -240,17 +243,17 @@ export default function AccountInfo() {
             } as any);
             formData.append('upload_preset', 'beatbuddies'); // Replace with your Cloudinary preset
             formData.append('cloud_name', 'dk4wmqxux'); // Replace with your Cloudinary cloud name
-    
+
             const response = await fetch(`${CLOUDINARY_URL}/image/upload`, {
                 method: 'POST',
                 body: formData,
             });
-    
+
             const data = await response.json();
             if (!response.ok) {
                 throw new Error('Failed to upload image');
             }
-    
+
             setAvatarUrl(data.secure_url);
             Alert.alert('Upload Successful', 'Your picture has been uploaded.');
         } catch (error) {
@@ -267,7 +270,7 @@ export default function AccountInfo() {
     const validateInput = () => {
         // Regular expression for display name validation: alphanumeric, spaces, underscores, max 15 chars
         const displayNameRegex = /^[a-zA-Z0-9 _]{1,15}$/;
-    
+
         // Validate display name
         if (!displayNameRegex.test(displayName)) {
             Alert.alert(
@@ -276,38 +279,36 @@ export default function AccountInfo() {
             );
             return false;
         }
-    
+
         // Validate bio length
         if (bio.length > 250) {
             Alert.alert('Invalid Bio', 'Bio must be less than 250 characters.');
             return false;
         }
-    
+
         return true; // Input is valid
     };
-    
-    
 
     const handleSubmit = async () => {
         if (validateInput()) {
             const user = auth.currentUser;
-    
+
             if (!user) {
                 Alert.alert('Error', 'No user is currently signed in.');
                 return;
             }
-    
+
             try {
                 // Reference to the user's document in Firestore
                 const userRef = doc(db, 'users', user.uid);
-    
+
                 // Update the document with new data
                 await updateDoc(userRef, {
                     displayName: displayName,
                     Bio: bio,
                     profileImageLink: avatarUrl,
                 });
-    
+
                 console.log('Profile updated:', {
                     displayName,
                     bio,
@@ -323,7 +324,6 @@ export default function AccountInfo() {
             }
         }
     };
-    
 
     if (isLoading) {
         return (
@@ -407,24 +407,35 @@ export default function AccountInfo() {
                                     </View>
                                 ))}
                                 <TouchableOpacity
-    className={`w-1/4 px-2 mb-4 ${
-        favoriteAlbums.length >= 4 ? 'opacity-50' : ''
-    }`}
-    onPress={() =>
-        favoriteAlbums.length < 4
-            ? router.push('/profile/addFavorite')
-            : Alert.alert('Limit Reached', 'You can only have 4 favorite albums.')
-    }
-    activeOpacity={favoriteAlbums.length < 4 ? 0.7 : 1}
-    disabled={favoriteAlbums.length >= 4}
->
-    <View className="w-full h-24 border-dashed border-2 border-gray-300 rounded-lg flex items-center justify-center">
-        <Text className="text-lg font-bold text-gray-400">+</Text>
-        <Text className="text-xs text-gray-400 text-center mt-1">
-            Add Album
-        </Text>
-    </View>
-</TouchableOpacity>
+                                    className={`w-1/4 px-2 mb-4 ${
+                                        favoriteAlbums.length >= 4
+                                            ? 'opacity-50'
+                                            : ''
+                                    }`}
+                                    onPress={() =>
+                                        favoriteAlbums.length < 4
+                                            ? router.push(
+                                                  '/profile/addFavorite'
+                                              )
+                                            : Alert.alert(
+                                                  'Limit Reached',
+                                                  'You can only have 4 favorite albums.'
+                                              )
+                                    }
+                                    activeOpacity={
+                                        favoriteAlbums.length < 4 ? 0.7 : 1
+                                    }
+                                    disabled={favoriteAlbums.length >= 4}
+                                >
+                                    <View className="w-full h-24 border-dashed border-2 border-gray-300 rounded-lg flex items-center justify-center">
+                                        <Text className="text-lg font-bold text-gray-400">
+                                            +
+                                        </Text>
+                                        <Text className="text-xs text-gray-400 text-center mt-1">
+                                            Add Album
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
                             </View>
                         </View>
 

@@ -17,7 +17,6 @@ export default function ProfilePage() {
 
     // Dummy data for favorite albums
 
-
     const fetchFavoriteAlbums = async () => {
         try {
             const user = auth.currentUser;
@@ -46,7 +45,9 @@ export default function ProfilePage() {
                         );
 
                         if (!response.ok) {
-                            console.error(`Failed to fetch album with ID: ${id}`);
+                            console.error(
+                                `Failed to fetch album with ID: ${id}`
+                            );
                             return null;
                         }
 
@@ -54,8 +55,12 @@ export default function ProfilePage() {
                         return {
                             id: data.id,
                             name: data.name,
-                            artist: data.artists.map((artist) => artist.name).join(', '),
-                            albumCover: data.images[0]?.url || 'https://via.placeholder.com/300',
+                            artist: data.artists
+                                .map((artist) => artist.name)
+                                .join(', '),
+                            albumCover:
+                                data.images[0]?.url ||
+                                'https://via.placeholder.com/300',
                         };
                     } catch (error) {
                         console.error('Error fetching album details:', error);
@@ -110,14 +115,17 @@ export default function ProfilePage() {
     const getSpotifyAccessToken = async (): Promise<string> => {
         try {
             const credentials = `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`;
-            const response = await fetch('https://accounts.spotify.com/api/token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: `Basic ${btoa(credentials)}`,
-                },
-                body: 'grant_type=client_credentials',
-            });
+            const response = await fetch(
+                'https://accounts.spotify.com/api/token',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Authorization: `Basic ${btoa(credentials)}`,
+                    },
+                    body: 'grant_type=client_credentials',
+                }
+            );
 
             const data = await response.json();
             if (!response.ok) {
@@ -168,9 +176,12 @@ export default function ProfilePage() {
                         const data = userSnapshot.data();
                         if (isActive) {
                             setProfileData({
-                                displayName: data.displayName || 'No name provided',
+                                displayName:
+                                    data.displayName || 'No name provided',
                                 bio: data.Bio || 'No bio provided',
-                                avatarUrl: data.profileImageLink || 'https://via.placeholder.com/100',
+                                avatarUrl:
+                                    data.profileImageLink ||
+                                    'https://via.placeholder.com/100',
                             });
                         }
                     } else {
@@ -178,7 +189,10 @@ export default function ProfilePage() {
                     }
                 } catch (error) {
                     console.error('Error fetching profile data:', error);
-                    Alert.alert('Error', 'Failed to fetch profile information.');
+                    Alert.alert(
+                        'Error',
+                        'Failed to fetch profile information.'
+                    );
                 } finally {
                     if (isActive) {
                         setLoading(false);
@@ -197,39 +211,38 @@ export default function ProfilePage() {
 
     return (
         <ScrollView className="flex-1 bg-white">
-        {/* Header Section */}
-        <View className="items-center p-4 bg-gray-100">
-            <Image
-                source={{ uri: profileData.avatarUrl }}
-                className="w-24 h-24 rounded-full mb-2"
-            />
-            <Text className="text-2xl font-bold">
-                {profileData.displayName}
-            </Text>
-            <Text className="text-gray-600">{profileData.bio}</Text>
-        </View>
+            {/* Header Section */}
+            <View className="items-center p-4 bg-gray-100">
+                <Image
+                    source={{ uri: profileData.avatarUrl }}
+                    className="w-24 h-24 rounded-full mb-2"
+                />
+                <Text className="text-2xl font-bold">
+                    {profileData.displayName}
+                </Text>
+                <Text className="text-gray-600">{profileData.bio}</Text>
+            </View>
 
-        {/* Favorite Albums Section */}
-        <View className="p-4">
-            <Text className="text-xl font-bold mb-2">Favorite Albums</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                {favoriteAlbums.map((album) => (
-                    <View key={album.id} className="mr-4">
-                        <Image
-                            source={{ uri: album.albumCover }}
-                            className="w-32 h-32 rounded-lg"
-                        />
-                        <Text className="text-center mt-2 font-semibold">
-                            {album.name}
-                        </Text>
-                        <Text className="text-center text-gray-500">
-                            {album.artist}
-                        </Text>
-                    </View>
-                ))}
-            </ScrollView>
-        </View>
-
+            {/* Favorite Albums Section */}
+            <View className="p-4">
+                <Text className="text-xl font-bold mb-2">Favorite Albums</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {favoriteAlbums.map((album) => (
+                        <View key={album.id} className="mr-4">
+                            <Image
+                                source={{ uri: album.albumCover }}
+                                className="w-32 h-32 rounded-lg"
+                            />
+                            <Text className="text-center mt-2 font-semibold">
+                                {album.name}
+                            </Text>
+                            <Text className="text-center text-gray-500">
+                                {album.artist}
+                            </Text>
+                        </View>
+                    ))}
+                </ScrollView>
+            </View>
 
             {/* Recent Activity Section */}
             <View className="p-4">
