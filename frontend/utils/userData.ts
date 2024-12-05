@@ -11,10 +11,23 @@ import {
 } from 'firebase/firestore';
 
 // TypeScript interface for user data
-export  interface UserItemData {
+export interface UserItemData {
     rating: number;
     review: string;
     createdAt?: any;
+}
+
+export interface FriendData {
+    displayName: string;
+    bio: string;
+    profileImageLink: string;
+}
+
+export interface Album {
+    id: string;
+    name: string;
+    artist: string;
+    albumCover: string;
 }
 
 /**
@@ -113,5 +126,141 @@ export const getUserItem = async (
     } catch (error) {
         console.error(`Error fetching user's ${collectionName} item:`, error);
         throw error;
+    }
+};
+
+/**
+ * Adds a friend to the user's friends subcollection.
+ *
+ * @param friendUuid - The UUID of the friend to be added
+ */
+export const addFriend = async (friendUuid: string) => {
+    try {
+        const userId = auth.currentUser?.uid;
+        if (!userId) throw new Error('User not authenticated');
+
+        const friendRef = doc(db, `users/${userId}/friends`, friendUuid);
+        await setDoc(friendRef, {
+            addedAt: serverTimestamp(),
+        });
+        console.log(`Friend with UUID ${friendUuid} added.`);
+    } catch (error) {
+        console.error('Error adding friend:', error);
+        throw error;
+    }
+};
+
+/**
+ * Retrieves the friends' full data from the user's friends subcollection.
+ *
+ * @returns An array of friends with their UUIDs, names, bios, and profile pictures
+ */
+export const getFriends = async (): Promise<
+    (FriendData & { uuid: string })[]
+> => {
+    try {
+        const userId = auth.currentUser?.uid;
+        if (!userId) throw new Error('User not authenticated');
+
+        const friendsRef = collection(db, `users/${userId}/friends`);
+        const friendsSnapshot = await getDocs(friendsRef);
+
+        const friends = await Promise.all(
+            friendsSnapshot.docs.map(async (docSnap) => {
+                const friendUuid = docSnap.id;
+                const friendDocRef = doc(db, `users`, friendUuid);
+                const friendDoc = await getDoc(friendDocRef);
+
+                if (friendDoc.exists()) {
+                    const friendData = friendDoc.data() as FriendData; // Cast to FriendData
+                    return {
+                        uuid: friendUuid,
+                        ...friendData,
+                    };
+                }
+                return null;
+            })
+        );
+
+        return friends.filter((friend) => friend !== null) as (FriendData & {
+            uuid: string;
+        })[];
+    } catch (error) {
+        console.error('Error fetching friends:', error);
+        throw error;
+    }
+};
+
+/**
+ * Retrieves a specific friend from the user's friends subcollection.
+ *
+ * @param friendUuid - The UUID of the friend to retrieve
+ * @returns The friend's data or null if not found
+ */
+export const getFriend = async (
+    friendUuid: string
+): Promise<{ uuid: string; addedAt?: any } | null> => {
+    try {
+        const userId = auth.currentUser?.uid;
+        if (!userId) throw new Error('User not authenticated');
+
+        const friendRef = doc(db, `users/${userId}/friends`, friendUuid);
+        const friendSnap = await getDoc(friendRef);
+
+        if (friendSnap.exists()) {
+            return {
+                uuid: friendSnap.id,
+                ...(friendSnap.data() as { addedAt?: any }),
+            };
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching friend:', error);
+        throw error;
+    }
+};
+
+export const addFavoriteAlbum = async (album: Album) => {
+    try {
+        const userId = auth.currentUser?.uid;
+        if (!userId) throw new Error('User not authenticated');
+
+        const albumRef = doc(db, `users/${userId}/favorites`, album.id);
+        await setDoc(albumRef, {
+            id: album.id,
+            name: album.name,
+            artist: album.artist,
+            albumCover: album.albumCover,
+        });
+
+        console.log(`Album ${album.name} added to favorites.`);
+    } catch (error) {
+        console.error('Error adding album to favorites:', error);
+        throw error;
+    }
+};
+
+/**
+ * Fetches the user's favorite albums.
+ *
+ * @returns An array of albums
+ */
+export const getFavoriteAlbums = async (): Promise<Album[]> => {
+    try {
+        const userId = auth.currentUser?.uid;
+        if (!userId) throw new Error('User not authenticated');
+
+        const favoritesRef = collection(db, `users/${userId}/favorites`);
+        const favoritesSnapshot = await getDocs(favoritesRef);
+
+        const albums = favoritesSnapshot.docs.map((doc) => ({
+            ...(doc.data() as Album),
+        }));
+
+        return albums;
+    } catch (error) {
+        console.error('Error fetching favorite albums:', error);
+        return []; // Return empty array if no collection exists
     }
 };

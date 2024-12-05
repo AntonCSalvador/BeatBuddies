@@ -43,7 +43,6 @@ export default function SongDetails({ songId }: SongDetailsProps) {
     const [review, setReview] = useState<string>(''); // State for review
     const router = useRouter();
 
-
     useEffect(() => {
         async function fetchTrackDetails() {
             try {
@@ -182,7 +181,6 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 <ActivityIndicator size="large" color="#007BFF" />
             </View>
         );
-       
     }
 
     if (error) {
@@ -191,7 +189,6 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 <Text className="text-red-500 text-lg">{error}</Text>
             </View>
         );
-        
     }
 
     if (!track) {
@@ -200,7 +197,6 @@ export default function SongDetails({ songId }: SongDetailsProps) {
                 <Text className="text-red-500 text-lg">Track not found</Text>
             </View>
         );
-        
     }
 
     return (

@@ -1,5 +1,3 @@
-// AccountInfo.tsx
-
 import React, { useState, useEffect } from 'react';
 import {
     View,
@@ -17,20 +15,27 @@ import {
 import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 import * as ImagePicker from 'expo-image-picker';
 import { CLOUDINARY_URL } from '@/screens/spotify';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { auth, db } from '@/firebase/firebaseConfig'; // Import Firebase modules
-import { getDoc, doc, updateDoc } from 'firebase/firestore'; // Import Firestore functions
+import { useRouter } from 'expo-router';
+import { auth, db } from '@/firebase/firebaseConfig';
+import {
+    getDoc,
+    doc,
+    updateDoc,
+    collection,
+    getDocs,
+    deleteDoc,
+    setDoc,
+} from 'firebase/firestore';
+import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 
 interface Album {
     id: string;
-    title: string;
+    name: string;
     artist: string;
     albumCover: string;
 }
 
 export default function AccountInfo() {
-    const { addedAlbum } = useLocalSearchParams();
-
     const [favoriteAlbums, setFavoriteAlbums] = useState<Album[]>([]);
     const [displayName, setDisplayName] = useState('');
     const [bio, setBio] = useState('');
@@ -42,7 +47,7 @@ export default function AccountInfo() {
 
     const router = useRouter();
 
-    // Fetch user data from Firebase
+    // Fetch user data and favorite albums on mount
     useEffect(() => {
         const fetchUserData = async () => {
             const user = auth.currentUser;
@@ -61,7 +66,9 @@ export default function AccountInfo() {
                     setDisplayName(userData.displayName || '');
                     setBio(userData.Bio || '');
                     setAvatarUrl(userData.profileImageLink || avatarUrl);
-                    setFavoriteAlbums(userData.favoriteAlbums || []);
+
+                    // Fetch favorite albums
+                    await fetchFavoriteAlbums();
                 } else {
                     console.log('User document does not exist.');
                 }
@@ -76,54 +83,140 @@ export default function AccountInfo() {
         fetchUserData();
     }, []);
 
-    // Handle adding a new album from navigation params
-    useEffect(() => {
-        if (addedAlbum) {
-            try {
-                const albumData = Array.isArray(addedAlbum) ? addedAlbum[0] : addedAlbum;
-                const parsedAlbum: Album = JSON.parse(albumData);
+    const fetchFavoriteAlbums = async () => {
+        try {
+            const user = auth.currentUser;
+            if (!user) return;
 
-                const exists = favoriteAlbums.some(album => album.id === parsedAlbum.id);
-                if (!exists) {
-                    setFavoriteAlbums(prev => [...prev, parsedAlbum]);
-                    Alert.alert(
-                        'Album Added',
-                        `${parsedAlbum.title} by ${parsedAlbum.artist} has been added to your favorites.`
-                    );
-                } else {
-                    Alert.alert('Already Added', `${parsedAlbum.title} is already in your favorites.`);
-                }
-            } catch (error) {
-                console.error('Failed to parse addedAlbum:', error);
-                Alert.alert('Error', 'Failed to add album.');
+            const favoritesRef = collection(db, `users/${user.uid}/favorites`);
+            const snapshot = await getDocs(favoritesRef);
+
+            if (snapshot.empty) {
+                console.log('No favorite albums found.');
+                return;
             }
+
+            const albumIds = snapshot.docs.map((doc) => doc.id);
+
+            // Query Spotify for album details
+            const token = await getSpotifyAccessToken();
+            const albumDetails = await Promise.all(
+                albumIds.map(async (id) => {
+                    try {
+                        const response = await fetch(
+                            `https://api.spotify.com/v1/albums/${id}`,
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                },
+                            }
+                        );
+
+                        if (!response.ok) {
+                            console.error(
+                                `Failed to fetch album with ID: ${id}`
+                            );
+                            return null;
+                        }
+
+                        const data = await response.json();
+                        return {
+                            id: data.id,
+                            name: data.name,
+                            artist: data.artists
+                                .map((artist: any) => artist.name)
+                                .join(', '),
+                            albumCover:
+                                data.images[0]?.url ||
+                                'https://via.placeholder.com/300',
+                        };
+                    } catch (error) {
+                        console.error('Error fetching album details:', error);
+                        return null;
+                    }
+                })
+            );
+
+            // Update state with valid albums
+            setFavoriteAlbums(albumDetails.filter((album) => album !== null));
+        } catch (error) {
+            console.error('Error fetching favorite albums:', error);
         }
-    }, [addedAlbum]);
+    };
+
+    const getSpotifyAccessToken = async (): Promise<string> => {
+        try {
+            const credentials = `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`;
+            const response = await fetch(
+                'https://accounts.spotify.com/api/token',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Authorization: `Basic ${btoa(credentials)}`,
+                    },
+                    body: 'grant_type=client_credentials',
+                }
+            );
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(`Error fetching Spotify token: ${data.error}`);
+            }
+
+            return data.access_token;
+        } catch (error) {
+            console.error('Error fetching Spotify access token:', error);
+            throw error;
+        }
+    };
+
+    const handleAddFavoriteAlbum = async (album: Album) => {
+        try {
+            const user = auth.currentUser;
+            if (!user) throw new Error('User not signed in.');
+
+            const albumRef = doc(db, `users/${user.uid}/favorites`, album.id);
+            await setDoc(albumRef, { addedAt: new Date() });
+
+            setFavoriteAlbums((prev) => [...prev, album]);
+            Alert.alert('Success', `${album.name} added to favorites.`);
+        } catch (error) {
+            console.error('Error adding favorite album:', error);
+            Alert.alert('Error', 'Failed to add album to favorites.');
+        }
+    };
+
+    const handleRemoveFavoriteAlbum = async (albumId: string) => {
+        try {
+            const user = auth.currentUser;
+            if (!user) throw new Error('User not signed in.');
+
+            const albumRef = doc(db, `users/${user.uid}/favorites`, albumId);
+            await deleteDoc(albumRef);
+
+            setFavoriteAlbums((prev) =>
+                prev.filter((album) => album.id !== albumId)
+            );
+            Alert.alert('Success', 'Album removed from favorites.');
+        } catch (error) {
+            console.error('Error removing favorite album:', error);
+            Alert.alert('Error', 'Failed to remove album from favorites.');
+        }
+    };
 
     const handleDismissKeyboard = () => {
         Keyboard.dismiss();
     };
 
-    const validateInput = () => {
-        const displayNameRegex = /^[a-zA-Z0-9 _]{1,15}$/;
-        if (!displayNameRegex.test(displayName)) {
-            Alert.alert(
-                'Invalid Display Name',
-                'Display Name must be less than 15 characters and can only contain letters, numbers, spaces, and underscores.'
-            );
-            return false;
-        }
-        if (bio.length > 250) {
-            Alert.alert('Invalid Bio', 'Bio must be less than 250 characters.');
-            return false;
-        }
-        return true;
-    };
-
     const handleImageUpload = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const permissionResult =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permissionResult.granted) {
-            Alert.alert('Permission Required', 'Please allow access to the media library.');
+            Alert.alert(
+                'Permission Required',
+                'Please allow access to the media library.'
+            );
             return;
         }
 
@@ -157,14 +250,43 @@ export default function AccountInfo() {
             });
 
             const data = await response.json();
+            if (!response.ok) {
+                throw new Error('Failed to upload image');
+            }
+
             setAvatarUrl(data.secure_url);
             Alert.alert('Upload Successful', 'Your picture has been uploaded.');
         } catch (error) {
-            Alert.alert('Upload Failed', 'Something went wrong during the upload.');
+            Alert.alert(
+                'Upload Failed',
+                'Something went wrong during the upload.'
+            );
             console.error(error);
         } finally {
             setIsUploading(false);
         }
+    };
+
+    const validateInput = () => {
+        // Regular expression for display name validation: alphanumeric, spaces, underscores, max 15 chars
+        const displayNameRegex = /^[a-zA-Z0-9 _]{1,15}$/;
+
+        // Validate display name
+        if (!displayNameRegex.test(displayName)) {
+            Alert.alert(
+                'Invalid Display Name',
+                'Display Name must be less than 15 characters and can only contain letters, numbers, spaces, and underscores.'
+            );
+            return false;
+        }
+
+        // Validate bio length
+        if (bio.length > 250) {
+            Alert.alert('Invalid Bio', 'Bio must be less than 250 characters.');
+            return false;
+        }
+
+        return true; // Input is valid
     };
 
     const handleSubmit = async () => {
@@ -185,25 +307,22 @@ export default function AccountInfo() {
                     displayName: displayName,
                     Bio: bio,
                     profileImageLink: avatarUrl,
-                    favoriteAlbums: favoriteAlbums, // Save favorite albums
                 });
 
-                console.log('Profile updated:', { displayName, bio, avatarUrl, favoriteAlbums });
+                console.log('Profile updated:', {
+                    displayName,
+                    bio,
+                    avatarUrl,
+                });
                 Alert.alert('Success', 'Your profile has been updated!');
             } catch (error) {
                 console.error('Error updating profile:', error);
-                Alert.alert('Error', 'Failed to update your profile. Please try again.');
+                Alert.alert(
+                    'Error',
+                    'Failed to update your profile. Please try again.'
+                );
             }
         }
-    };
-
-    const handleAddFavoriteAlbum = () => {
-        router.push('/profile/addFavorite'); // Navigate to the add favorite album screen
-    };
-
-    const handleRemoveFavoriteAlbum = (albumId: string) => {
-        setFavoriteAlbums(prev => prev.filter(album => album.id !== albumId));
-        Alert.alert('Album Removed', 'The album has been removed from your favorites.');
     };
 
     if (isLoading) {
@@ -245,14 +364,18 @@ export default function AccountInfo() {
                                 disabled={isUploading}
                             >
                                 <Text className="text-white text-sm">
-                                    {isUploading ? 'Uploading...' : 'Upload Picture'}
+                                    {isUploading
+                                        ? 'Uploading...'
+                                        : 'Upload Picture'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
 
                         {/* Favorite Albums Section */}
                         <View className="mb-6">
-                            <Text className="text-lg font-bold mb-2">Favorite Albums</Text>
+                            <Text className="text-lg font-bold mb-2">
+                                Favorite Albums
+                            </Text>
                             <View className="flex-row flex-wrap -mx-2">
                                 {favoriteAlbums.map((album) => (
                                     <View
@@ -267,26 +390,50 @@ export default function AccountInfo() {
                                             className="text-xs text-center font-semibold"
                                             numberOfLines={1}
                                         >
-                                            {album.title}
+                                            {album.name}
                                         </Text>
                                         <TouchableOpacity
-                                            onPress={() => handleRemoveFavoriteAlbum(album.id)}
+                                            onPress={() =>
+                                                handleRemoveFavoriteAlbum(
+                                                    album.id
+                                                )
+                                            }
                                             className="mt-1 py-1 px-2 bg-red-500 rounded-lg"
                                         >
-                                            <Text className="text-white text-xs">Remove</Text>
+                                            <Text className="text-white text-xs">
+                                                Remove
+                                            </Text>
                                         </TouchableOpacity>
                                     </View>
                                 ))}
-
-                                {/* Add Favorite Album */}
                                 <TouchableOpacity
-                                    className="w-1/4 px-2 mb-4"
-                                    onPress={handleAddFavoriteAlbum}
-                                    activeOpacity={0.7}
+                                    className={`w-1/4 px-2 mb-4 ${
+                                        favoriteAlbums.length >= 4
+                                            ? 'opacity-50'
+                                            : ''
+                                    }`}
+                                    onPress={() =>
+                                        favoriteAlbums.length < 4
+                                            ? router.push(
+                                                  '/profile/addFavorite'
+                                              )
+                                            : Alert.alert(
+                                                  'Limit Reached',
+                                                  'You can only have 4 favorite albums.'
+                                              )
+                                    }
+                                    activeOpacity={
+                                        favoriteAlbums.length < 4 ? 0.7 : 1
+                                    }
+                                    disabled={favoriteAlbums.length >= 4}
                                 >
                                     <View className="w-full h-24 border-dashed border-2 border-gray-300 rounded-lg flex items-center justify-center">
-                                        <Text className="text-lg font-bold text-gray-400">+</Text>
-                                        <Text className="text-xs text-gray-400 text-center mt-1">Add Album</Text>
+                                        <Text className="text-lg font-bold text-gray-400">
+                                            +
+                                        </Text>
+                                        <Text className="text-xs text-gray-400 text-center mt-1">
+                                            Add Album
+                                        </Text>
                                     </View>
                                 </TouchableOpacity>
                             </View>
@@ -294,7 +441,9 @@ export default function AccountInfo() {
 
                         {/* Display Name Input */}
                         <View className="mb-4">
-                            <Text className="text-lg font-bold mb-2">Display Name</Text>
+                            <Text className="text-lg font-bold mb-2">
+                                Display Name
+                            </Text>
                             <TextInput
                                 placeholder="Your display name"
                                 value={displayName}

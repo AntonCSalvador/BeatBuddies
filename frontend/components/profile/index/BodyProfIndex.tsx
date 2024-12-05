@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, ScrollView, Alert, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -7,18 +7,73 @@ import { signOut } from '@/utils/auth';
 import { auth, db } from '@/firebase/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { useFocusEffect } from 'expo-router';
+import { getDocs, collection } from 'firebase/firestore';
+import { Album } from '@/utils/userData';
+import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 
 export default function ProfilePage() {
     const router = useRouter();
+    const [favoriteAlbums, setFavoriteAlbums] = useState<Album[]>([]);
 
     // Dummy data for favorite albums
-    const favoriteAlbums = [
-        { id: '1', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png', title: 'Album 1' },
-        { id: '2', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png', title: 'Album 2' },
-        { id: '3', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png', title: 'Album 3' },
-        { id: '4', coverUrl: 'https://upload.wikimedia.org/wikipedia/en/d/dc/Clairo_-_Charm.png', title: 'Album 4' },
-        // Add more albums as needed
-    ];
+
+    const fetchFavoriteAlbums = async () => {
+        try {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const favoritesRef = collection(db, `users/${user.uid}/favorites`);
+            const snapshot = await getDocs(favoritesRef);
+
+            if (snapshot.empty) {
+                setFavoriteAlbums([]);
+                return;
+            }
+
+            const albumIds = snapshot.docs.map((doc) => doc.id);
+
+            // Query Spotify for album details
+            const token = await getSpotifyAccessToken();
+            const albumDetails = await Promise.all(
+                albumIds.map(async (id) => {
+                    try {
+                        const response = await fetch(
+                            `https://api.spotify.com/v1/albums/${id}`,
+                            {
+                                headers: { Authorization: `Bearer ${token}` },
+                            }
+                        );
+
+                        if (!response.ok) {
+                            console.error(
+                                `Failed to fetch album with ID: ${id}`
+                            );
+                            return null;
+                        }
+
+                        const data = await response.json();
+                        return {
+                            id: data.id,
+                            name: data.name,
+                            artist: data.artists
+                                .map((artist) => artist.name)
+                                .join(', '),
+                            albumCover:
+                                data.images[0]?.url ||
+                                'https://via.placeholder.com/300',
+                        };
+                    } catch (error) {
+                        console.error('Error fetching album details:', error);
+                        return null;
+                    }
+                })
+            );
+
+            setFavoriteAlbums(albumDetails.filter((album) => album !== null));
+        } catch (error) {
+            console.error('Error fetching favorite albums:', error);
+        }
+    };
 
     const [profileData, setProfileData] = useState({
         displayName: '',
@@ -32,7 +87,8 @@ export default function ProfilePage() {
         {
             id: '1',
             type: 'song', // Can be 'song', 'album', or 'artist'
-            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png',
             songTitle: 'Ceilings',
             artistName: 'Beabadoobee',
             rating: 4.5,
@@ -40,7 +96,8 @@ export default function ProfilePage() {
         {
             id: '2',
             type: 'album',
-            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png',
             albumTitle: 'Flower Boy',
             artistName: 'Tyler, the Creator',
             rating: 5,
@@ -48,12 +105,39 @@ export default function ProfilePage() {
         {
             id: '3',
             type: 'artist',
-            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png',
             artistName: 'Coldplay',
             rating: 4,
         },
     ];
-    
+
+    const getSpotifyAccessToken = async (): Promise<string> => {
+        try {
+            const credentials = `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`;
+            const response = await fetch(
+                'https://accounts.spotify.com/api/token',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Authorization: `Basic ${btoa(credentials)}`,
+                    },
+                    body: 'grant_type=client_credentials',
+                }
+            );
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(`Error fetching Spotify token: ${data.error}`);
+            }
+
+            return data.access_token;
+        } catch (error) {
+            console.error('Error fetching Spotify access token:', error);
+            throw error;
+        }
+    };
 
     const confirmSignOut = () => {
         Alert.alert(
@@ -75,48 +159,55 @@ export default function ProfilePage() {
 
     useFocusEffect(
         React.useCallback(() => {
-          let isActive = true;
-    
-          const fetchProfileData = async () => {
-            setLoading(true);
-            try {
-              const user = auth.currentUser;
-              if (!user) {
-                throw new Error('No user is currently signed in.');
-              }
-    
-              const userRef = doc(db, 'users', user.uid);
-              const userSnapshot = await getDoc(userRef);
-    
-              if (userSnapshot.exists()) {
-                const data = userSnapshot.data();
-                if (isActive) {
-                  setProfileData({
-                    displayName: data.displayName || 'No name provided',
-                    bio: data.Bio || 'No bio provided',
-                    avatarUrl: data.profileImageLink || 'https://via.placeholder.com/100',
-                  });
+            let isActive = true;
+
+            const fetchProfileData = async () => {
+                setLoading(true);
+                try {
+                    const user = auth.currentUser;
+                    if (!user) {
+                        throw new Error('No user is currently signed in.');
+                    }
+
+                    const userRef = doc(db, 'users', user.uid);
+                    const userSnapshot = await getDoc(userRef);
+
+                    if (userSnapshot.exists()) {
+                        const data = userSnapshot.data();
+                        if (isActive) {
+                            setProfileData({
+                                displayName:
+                                    data.displayName || 'No name provided',
+                                bio: data.Bio || 'No bio provided',
+                                avatarUrl:
+                                    data.profileImageLink ||
+                                    'https://via.placeholder.com/100',
+                            });
+                        }
+                    } else {
+                        throw new Error('User document does not exist.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching profile data:', error);
+                    Alert.alert(
+                        'Error',
+                        'Failed to fetch profile information.'
+                    );
+                } finally {
+                    if (isActive) {
+                        setLoading(false);
+                    }
                 }
-              } else {
-                throw new Error('User document does not exist.');
-              }
-            } catch (error) {
-              console.error('Error fetching profile data:', error);
-              Alert.alert('Error', 'Failed to fetch profile information.');
-            } finally {
-              if (isActive) {
-                setLoading(false);
-              }
-            }
-          };
-    
-          fetchProfileData();
-    
-          return () => {
-            isActive = false;
-          };
+            };
+
+            fetchProfileData();
+            fetchFavoriteAlbums();
+
+            return () => {
+                isActive = false;
+            };
         }, [])
-      );
+    );
 
     return (
         <ScrollView className="flex-1 bg-white">
@@ -126,7 +217,9 @@ export default function ProfilePage() {
                     source={{ uri: profileData.avatarUrl }}
                     className="w-24 h-24 rounded-full mb-2"
                 />
-                <Text className="text-2xl font-bold">{profileData.displayName}</Text>
+                <Text className="text-2xl font-bold">
+                    {profileData.displayName}
+                </Text>
                 <Text className="text-gray-600">{profileData.bio}</Text>
             </View>
 
@@ -137,9 +230,15 @@ export default function ProfilePage() {
                     {favoriteAlbums.map((album) => (
                         <View key={album.id} className="mr-4">
                             <Image
-                                source={{ uri: album.coverUrl }}
-                                className="w-32 h-32"
+                                source={{ uri: album.albumCover }}
+                                className="w-32 h-32 rounded-lg"
                             />
+                            <Text className="text-center mt-2 font-semibold">
+                                {album.name}
+                            </Text>
+                            <Text className="text-center text-gray-500">
+                                {album.artist}
+                            </Text>
                         </View>
                     ))}
                 </ScrollView>
@@ -156,7 +255,11 @@ export default function ProfilePage() {
                         <Pressable
                             key={activity.id}
                             className="flex-row items-start mb-4 bg-gray-100 p-3 rounded-lg"
-                            onPress={() => console.log(`Pressed activity ID: ${activity.id}`)} //okay here just do router.push(`/(pages)/search/${activity.id}`); something like that instead of the console.log
+                            onPress={() =>
+                                console.log(
+                                    `Pressed activity ID: ${activity.id}`
+                                )
+                            } //okay here just do router.push(`/(pages)/search/${activity.id}`); something like that instead of the console.log
                         >
                             {/* Cover Image */}
                             <Image
@@ -202,9 +305,17 @@ export default function ProfilePage() {
                                         />
                                     ))}
                                     {hasHalfStar && (
-                                        <Ionicons name="star-half" size={16} color="#FFD700" />
+                                        <Ionicons
+                                            name="star-half"
+                                            size={16}
+                                            color="#FFD700"
+                                        />
                                     )}
-                                    {[...Array(5 - Math.ceil(activity.rating))].map((_, index) => (
+                                    {[
+                                        ...Array(
+                                            5 - Math.ceil(activity.rating)
+                                        ),
+                                    ].map((_, index) => (
                                         <Ionicons
                                             key={`star-outline-${activity.id}-${index}`}
                                             name="star-outline"
@@ -218,7 +329,6 @@ export default function ProfilePage() {
                     );
                 })}
             </View>
-
 
             {/* Navigation Links (Using LinkOptions) */}
             {/* Profile Options */}
@@ -258,7 +368,9 @@ export default function ProfilePage() {
             <View className="w-full mt-0 mb-0 border-t border-gray-200">
                 <LinkOptions
                     title="Artists"
-                    onPress={() => router.push('/(pages)/profile/artistGallery')}
+                    onPress={() =>
+                        router.push('/(pages)/profile/artistGallery')
+                    }
                     color="black"
                 />
             </View>

@@ -5,11 +5,11 @@ import AlbumDetails from '@/screens/pages/search/albumdetails';
 import ArtistDetails from '@/screens/pages/search/artistdetails';
 import { Text } from 'react-native';
 
-import { useGlobalSearchParams } from 'expo-router'; // Use this to retrieve dynamic parameters
+import { useGlobalSearchParams, useLocalSearchParams } from 'expo-router'; // Use this to retrieve dynamic parameters
 import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 
-export default function MusicPage() {
-    const { songId } = useGlobalSearchParams(); // Get the songId from the dynamic route
+export default function ProfileMusicPage() {
+    const { songId } = useLocalSearchParams(); // Get the songId from the dynamic route
     const [tab, setTab] = useState<number | null>(null); // State to determine which component to render
     const [error, setError] = useState<string | null>(null); // State to handle errors
 
@@ -17,6 +17,7 @@ export default function MusicPage() {
     const resolvedSongId = Array.isArray(songId) ? songId[0] : songId;
 
     useEffect(() => {
+        console.log(songId);
         if (!resolvedSongId) {
             setError('No song ID provided.');
             return;

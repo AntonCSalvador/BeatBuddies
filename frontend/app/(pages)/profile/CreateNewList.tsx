@@ -16,7 +16,13 @@ import * as ImagePicker from 'expo-image-picker';
 import { CLOUDINARY_URL } from '@/screens/spotify';
 import { useRouter } from 'expo-router';
 import { auth, db } from '@/firebase/firebaseConfig';
-import { doc, setDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import {
+    doc,
+    setDoc,
+    collection,
+    addDoc,
+    serverTimestamp,
+} from 'firebase/firestore';
 
 export default function CreateNewListPage() {
     const [listTitle, setListTitle] = useState('');
@@ -31,9 +37,13 @@ export default function CreateNewListPage() {
     };
 
     const handleUploadCover = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const permissionResult =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permissionResult.granted) {
-            Alert.alert('Permission Required', 'Please allow access to the media library.');
+            Alert.alert(
+                'Permission Required',
+                'Please allow access to the media library.'
+            );
             return;
         }
 
@@ -71,9 +81,15 @@ export default function CreateNewListPage() {
 
             const data = await response.json();
             setListCover(data.secure_url);
-            Alert.alert('Upload Successful', 'Your cover image has been uploaded.');
+            Alert.alert(
+                'Upload Successful',
+                'Your cover image has been uploaded.'
+            );
         } catch (error) {
-            Alert.alert('Upload Failed', 'Something went wrong during the upload.');
+            Alert.alert(
+                'Upload Failed',
+                'Something went wrong during the upload.'
+            );
             console.error(error);
         } finally {
             setIsUploading(false);
@@ -82,7 +98,10 @@ export default function CreateNewListPage() {
 
     const handleSaveList = async () => {
         if (!listTitle.trim() || !listDescription.trim()) {
-            Alert.alert('Missing Fields', 'Please fill out all required fields.');
+            Alert.alert(
+                'Missing Fields',
+                'Please fill out all required fields.'
+            );
             return;
         }
 
@@ -114,7 +133,10 @@ export default function CreateNewListPage() {
             router.push(`/profile/AddToList?listId=${listDocRef.id}`);
         } catch (error) {
             console.error('Error creating list:', error);
-            Alert.alert('Error', 'Failed to create your list. Please try again.');
+            Alert.alert(
+                'Error',
+                'Failed to create your list. Please try again.'
+            );
         }
     };
 
@@ -138,11 +160,18 @@ export default function CreateNewListPage() {
                         </Text>
 
                         {/* Cover Image Upload */}
-                        <View style={{ alignItems: 'center', marginBottom: 24 }}>
+                        <View
+                            style={{ alignItems: 'center', marginBottom: 24 }}
+                        >
                             {listCover ? (
                                 <Image
                                     source={{ uri: listCover }}
-                                    style={{ width: 200, height: 200, borderRadius: 12, marginBottom: 16 }}
+                                    style={{
+                                        width: 200,
+                                        height: 200,
+                                        borderRadius: 12,
+                                        marginBottom: 16,
+                                    }}
                                 />
                             ) : (
                                 <View
@@ -156,27 +185,41 @@ export default function CreateNewListPage() {
                                         marginBottom: 16,
                                     }}
                                 >
-                                    <Text style={{ color: '#bbb' }}>No Cover Image</Text>
+                                    <Text style={{ color: '#bbb' }}>
+                                        No Cover Image
+                                    </Text>
                                 </View>
                             )}
                             <TouchableOpacity
                                 onPress={handleUploadCover}
                                 style={{
                                     padding: 10,
-                                    backgroundColor: isUploading ? '#ccc' : '#007BFF',
+                                    backgroundColor: isUploading
+                                        ? '#ccc'
+                                        : '#007BFF',
                                     borderRadius: 8,
                                 }}
                                 disabled={isUploading}
                             >
                                 <Text style={{ fontSize: 14, color: '#fff' }}>
-                                    {isUploading ? 'Uploading...' : 'Upload Cover'}
+                                    {isUploading
+                                        ? 'Uploading...'
+                                        : 'Upload Cover'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
 
                         {/* List Title */}
                         <View style={{ marginBottom: 16 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>List Title</Text>
+                            <Text
+                                style={{
+                                    fontSize: 16,
+                                    fontWeight: '600',
+                                    marginBottom: 8,
+                                }}
+                            >
+                                List Title
+                            </Text>
                             <TextInput
                                 placeholder="Enter list title"
                                 value={listTitle}
@@ -194,7 +237,15 @@ export default function CreateNewListPage() {
 
                         {/* List Description */}
                         <View style={{ marginBottom: 16 }}>
-                            <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>Description</Text>
+                            <Text
+                                style={{
+                                    fontSize: 16,
+                                    fontWeight: '600',
+                                    marginBottom: 8,
+                                }}
+                            >
+                                Description
+                            </Text>
                             <TextInput
                                 placeholder="Describe your list"
                                 value={listDescription}
@@ -224,7 +275,15 @@ export default function CreateNewListPage() {
                                 alignItems: 'center',
                             }}
                         >
-                            <Text style={{ fontSize: 16, fontWeight: '600', color: '#fff' }}>Save List</Text>
+                            <Text
+                                style={{
+                                    fontSize: 16,
+                                    fontWeight: '600',
+                                    color: '#fff',
+                                }}
+                            >
+                                Save List
+                            </Text>
                         </TouchableOpacity>
                     </ScrollView>
                 </KeyboardAvoidingView>
