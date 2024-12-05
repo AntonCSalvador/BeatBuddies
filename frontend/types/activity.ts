@@ -1,12 +1,14 @@
-// /types/Activity.ts
+// /types/activity.ts
 export default interface Activity {
     id: string;
     username: string;
     userAvatar: string;
-    action: string; // "watched", "reviewed", "liked"
-    movieTitle: string;
-    review?: string; // Optional review text
-    rating?: number; // Optional rating (1-5)
-    timestamp: string; // ISO string
-    posterImage: string; // URL of the movie poster
+    action: string;
+    songTitle?: string; // Optional if not every activity has a song
+    artist?: string; // Optional if not every activity has an artist
+    album?: string; // Optional if not every activity has an album
+    review?: string; // Optional if not every activity has a review
+    rating?: number; // Optional if not every activity has a rating
+    timestamp: string;
+    coverImage?: string; // Optional if not every activity has a cover image
 }
