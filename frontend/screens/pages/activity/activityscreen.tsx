@@ -72,103 +72,88 @@ const mockActivities: Activity[] = [
         coverImage: 'https://upload.wikimedia.org/wikipedia/en/4/4d/Queen_A_Night_At_The_Opera.png',
     },
 ];
-export default function ActivityPage() {
+
+const RatingStars = ({ rating }: { rating: number }) => (
+    <View className="flex-row items-center mb-2">
+      {Array.from({ length: 5 }, (_, index) => {
+        const isHalf = rating - index >= 0.5 && rating - index < 1;
+        const isFull = index < Math.floor(rating);
+  
+        return isFull ? (
+          <Ionicons key={index} name="star" size={16} color="#FFD700" />
+        ) : isHalf ? (
+          <Ionicons key={index} name="star-half" size={16} color="#FFD700" />
+        ) : (
+          <Ionicons key={index} name="star-outline" size={16} color="#D1D5DB" />
+        );
+      })}
+    </View>
+  );
+  
+  export default function ActivityPage() {
     const [activities, setActivities] = useState<Activity[]>([]);
-
+  
     useEffect(() => {
-        setTimeout(() => {
-            setActivities(mockActivities);
-        }, 1000);
+      setTimeout(() => {
+        setActivities(mockActivities);
+      }, 1000);
     }, []);
-
+  
     return (
-        <SafeAreaViewAll color="white">
-            <ScrollView className="p-5">
-                <Text className="text-4xl font-bold text-black mb-5">
-                    Activity
+      <SafeAreaViewAll color="white">
+        <ScrollView className="p-5">
+          <Text className="text-4xl font-bold text-black mb-5">Activity</Text>
+          {activities.map((activity) => (
+            <View
+              key={activity.id}
+              className="bg-gray-100 rounded-lg mb-4 shadow p-4 flex-row items-start"
+            >
+              <Image
+                source={{ uri: activity.userAvatar }}
+                className="w-12 h-12 rounded-full mr-4"
+              />
+              <View className="flex-1">
+                <Text className="text-lg font-semibold text-black">
+                  {activity.username}
                 </Text>
-                {activities.map((activity) => (
-                    <View
-                        key={activity.id}
-                        className="bg-gray-100 rounded-lg mb-4 shadow p-4 flex-row items-start"
-                    >
-                        <Image
-                            source={{ uri: activity.userAvatar }}
-                            className="w-12 h-12 rounded-full mr-4"
-                        />
-                        <View className="flex-1">
-                            <Text className="text-lg font-semibold text-black">
-                                {activity.username}
-                            </Text>
-                            <Text className="text-sm text-gray-600 mb-1">
-                                {activity.action}{' '}
-                                {activity.songTitle && (
-                                    <Text className="font-medium text-black">
-                                        {activity.songTitle}
-                                    </Text>
-                                )}{' '}
-                                {activity.artist && (
-                                    <Text className="font-medium text-black">
-                                        by {activity.artist}
-                                    </Text>
-                                )}{' '}
-                                {activity.album && (
-                                    <Text className="font-medium text-black">
-                                        ({activity.album})
-                                    </Text>
-                                )}
-                            </Text>
-                            <Text
-                                className="text-sm text-gray-800 italic mb-1"
-                                numberOfLines={3}
-                            >
-                                "{activity.review}"
-                            </Text>
-                            {activity.rating !== undefined && (
-                                <View className="flex-row items-center mb-2">
-                                    {Array.from({ length: 5 }, (_, index) => {
-                                        const isHalf =
-                                            activity.rating - index >= 0.5 &&
-                                            activity.rating - index < 1;
-                                        const isFull =
-                                            index < Math.floor(activity.rating);
-
-                                        return isFull ? (
-                                            <Ionicons
-                                                key={index}
-                                                name="star"
-                                                size={16}
-                                                color="#FFD700"
-                                            />
-                                        ) : isHalf ? (
-                                            <Ionicons
-                                                key={index}
-                                                name="star-half"
-                                                size={16}
-                                                color="#FFD700"
-                                            />
-                                        ) : (
-                                            <Ionicons
-                                                key={index}
-                                                name="star-outline"
-                                                size={16}
-                                                color="#D1D5DB"
-                                            />
-                                        );
-                                    })}
-                                </View>
-                            )}
-                            <Text className="text-xs text-gray-500">
-                                {new Date(activity.timestamp).toLocaleString()}
-                            </Text>
-                        </View>
-                        <Image
-                            source={{ uri: activity.coverImage }}
-                            className="w-16 h-16 rounded-lg"
-                        />
-                    </View>
-                ))}
-            </ScrollView>
-        </SafeAreaViewAll>
+                <Text className="text-sm text-gray-600 mb-1">
+                  {activity.action}{' '}
+                  {activity.songTitle && (
+                    <Text className="font-medium text-black">
+                      {activity.songTitle}
+                    </Text>
+                  )}{' '}
+                  {activity.artist && (
+                    <Text className="font-medium text-black">
+                      by {activity.artist}
+                    </Text>
+                  )}{' '}
+                  {activity.album && (
+                    <Text className="font-medium text-black">
+                      ({activity.album})
+                    </Text>
+                  )}
+                </Text>
+                <Text
+                  className="text-sm text-gray-800 italic mb-1"
+                  numberOfLines={3}
+                >
+                  "{activity.review}"
+                </Text>
+                {activity.rating !== undefined && (
+                  <RatingStars rating={activity.rating} />
+                )}
+                <Text className="text-xs text-gray-500">
+                  {new Date(activity.timestamp).toLocaleString()}
+                </Text>
+              </View>
+              <Image
+                source={{ uri: activity.coverImage }}
+                className="w-16 h-16 rounded-lg"
+              />
+            </View>
+          ))}
+        </ScrollView>
+      </SafeAreaViewAll>
     );
-}
+  }

@@ -12,8 +12,8 @@ export default function ListsPage() {
     const lists = [
         {
             id: '1',
-            title: 'Top Albums of 2023',
-            description: 'A curated list of the best albums released in 2023.',
+            title: 'Top Albums of 2024',
+            description: 'A curated list of the best albums released in 2024.',
             itemCount: 15,
             coverImage: 'https://i8.amplience.net/i/naras/2024_grammys_general_key_art_euphoria_right_alined.jpg',
         },
