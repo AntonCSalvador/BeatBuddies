@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, ScrollView, Alert, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import LinkOptions from '@/components/profile/index/LinkOptions'; 
+import LinkOptions from '@/components/profile/index/LinkOptions';
 import { signOut } from '@/utils/auth';
 import { db } from '@/firebase/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
@@ -16,15 +16,14 @@ import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 export default function ProfilePage() {
     const router = useRouter();
     const [favoriteAlbums, setFavoriteAlbums] = useState<Album[]>([]);
-    
-    const { id } = useLocalSearchParams(); 
-    var theiruuid = id as string; // Make sure `id` is a string
 
+    const { id } = useLocalSearchParams();
+    var theiruuid = id as string; // Make sure `id` is a string
 
     const fetchFavoriteAlbums = async () => {
         try {
             if (!theiruuid) return;
-            
+
             const favoritesRef = collection(db, `users/${theiruuid}/favorites`);
             const snapshot = await getDocs(favoritesRef);
 
@@ -48,7 +47,9 @@ export default function ProfilePage() {
                         );
 
                         if (!response.ok) {
-                            console.error(`Failed to fetch album with ID: ${id}`);
+                            console.error(
+                                `Failed to fetch album with ID: ${id}`
+                            );
                             return null;
                         }
 
@@ -59,7 +60,9 @@ export default function ProfilePage() {
                             artist: data.artists
                                 .map((artist: any) => artist.name)
                                 .join(', '),
-                            albumCover: data.images[0]?.url || 'https://via.placeholder.com/300',
+                            albumCover:
+                                data.images[0]?.url ||
+                                'https://via.placeholder.com/300',
                         };
                     } catch (error) {
                         console.error('Error fetching album details:', error);
@@ -68,7 +71,9 @@ export default function ProfilePage() {
                 })
             );
 
-            setFavoriteAlbums(albumDetails.filter((album) => album !== null) as Album[]);
+            setFavoriteAlbums(
+                albumDetails.filter((album) => album !== null) as Album[]
+            );
         } catch (error) {
             console.error('Error fetching favorite albums:', error);
         }
@@ -77,7 +82,7 @@ export default function ProfilePage() {
     const [profileData, setProfileData] = useState({
         displayName: '',
         bio: '',
-        avatarUrl: 'https://via.placeholder.com/100', 
+        avatarUrl: 'https://via.placeholder.com/100',
     });
     const [loading, setLoading] = useState(true);
 
@@ -86,7 +91,8 @@ export default function ProfilePage() {
         {
             id: '1',
             type: 'song',
-            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/f/f9/Beabadoobee_-_Loveworm.png',
             songTitle: 'Ceilings',
             artistName: 'Beabadoobee',
             rating: 4.5,
@@ -94,7 +100,8 @@ export default function ProfilePage() {
         {
             id: '2',
             type: 'album',
-            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Tyler%2C_the_Creator_-_Flower_Boy.png/220px-Tyler%2C_the_Creator_-_Flower_Boy.png',
             albumTitle: 'Flower Boy',
             artistName: 'Tyler, the Creator',
             rating: 5,
@@ -102,7 +109,8 @@ export default function ProfilePage() {
         {
             id: '3',
             type: 'artist',
-            coverUrl: 'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png',
+            coverUrl:
+                'https://upload.wikimedia.org/wikipedia/en/f/fd/Coldplay_-_Parachutes.png',
             artistName: 'Coldplay',
             rating: 4,
         },
@@ -111,14 +119,17 @@ export default function ProfilePage() {
     const getSpotifyAccessToken = async (): Promise<string> => {
         try {
             const credentials = `${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`;
-            const response = await fetch('https://accounts.spotify.com/api/token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    Authorization: `Basic ${btoa(credentials)}`,
-                },
-                body: 'grant_type=client_credentials',
-            });
+            const response = await fetch(
+                'https://accounts.spotify.com/api/token',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Authorization: `Basic ${btoa(credentials)}`,
+                    },
+                    body: 'grant_type=client_credentials',
+                }
+            );
 
             const data = await response.json();
             if (!response.ok) {
@@ -168,9 +179,12 @@ export default function ProfilePage() {
                         const data = userSnapshot.data();
                         if (isActive) {
                             setProfileData({
-                                displayName: data.displayName || 'No name provided',
+                                displayName:
+                                    data.displayName || 'No name provided',
                                 bio: data.Bio || 'No bio provided',
-                                avatarUrl: data.profileImageLink || 'https://via.placeholder.com/100',
+                                avatarUrl:
+                                    data.profileImageLink ||
+                                    'https://via.placeholder.com/100',
                             });
                         }
                     } else {
@@ -185,7 +199,10 @@ export default function ProfilePage() {
                     }
                 } catch (error) {
                     console.error('Error fetching profile data:', error);
-                    Alert.alert('Error', 'Failed to fetch profile information.');
+                    Alert.alert(
+                        'Error',
+                        'Failed to fetch profile information.'
+                    );
                 } finally {
                     if (isActive) {
                         setLoading(false);
@@ -202,9 +219,30 @@ export default function ProfilePage() {
         }, [theiruuid])
     );
 
+    const goToFriendAlbums = () => {
+        router.push({
+            pathname: '/(pages)/profile/friendAlbums',
+            params: { theiruuid },
+        });
+    };
+
+    const goToFriendArtists = () => {
+        router.push({
+            pathname: '/(pages)/profile/friendArtist',
+            params: { theiruuid },
+        });
+    };
+
+    const goToFriendSongs = () => {
+        router.push({
+            pathname: '/(pages)/profile/friendSong',
+            params: { theiruuid },
+        });
+    };
+
     const copyToClipboard = (text: string) => {
         Clipboard.setStringAsync(text);
-        Alert.alert("Copied to Clipboard", text);
+        Alert.alert('Copied to Clipboard', text);
     };
 
     return (
@@ -224,8 +262,13 @@ export default function ProfilePage() {
 
                 {/* Favorite Albums Section */}
                 <View className="p-4">
-                    <Text className="text-xl font-bold mb-2">Favorite Albums</Text>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    <Text className="text-xl font-bold mb-2">
+                        Favorite Albums
+                    </Text>
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                    >
                         {favoriteAlbums.map((album) => (
                             <View key={album.id} className="mr-4">
                                 <Image
@@ -245,7 +288,9 @@ export default function ProfilePage() {
 
                 {/* Recent Activity Section */}
                 <View className="p-4">
-                    <Text className="text-xl font-bold mb-2">Recent Activity</Text>
+                    <Text className="text-xl font-bold mb-2">
+                        Recent Activity
+                    </Text>
                     {recentActivity.map((activity) => {
                         const fullStars = Math.floor(activity.rating);
                         const hasHalfStar = activity.rating % 1 !== 0;
@@ -254,8 +299,10 @@ export default function ProfilePage() {
                             <Pressable
                                 key={activity.id}
                                 className="flex-row items-start mb-4 bg-gray-100 p-3 rounded-lg"
-                                onPress={() => 
-                                    router.push(`/(pages)/search/${activity.id}`)
+                                onPress={() =>
+                                    router.push(
+                                        `/(pages)/search/${activity.id}`
+                                    )
                                 }
                             >
                                 {/* Cover Image */}
@@ -293,14 +340,16 @@ export default function ProfilePage() {
 
                                     {/* Rating */}
                                     <View className="flex-row items-center mt-2">
-                                        {[...Array(fullStars)].map((_, index) => (
-                                            <Ionicons
-                                                key={`star-${activity.id}-${index}`}
-                                                name="star"
-                                                size={16}
-                                                color="#FFD700"
-                                            />
-                                        ))}
+                                        {[...Array(fullStars)].map(
+                                            (_, index) => (
+                                                <Ionicons
+                                                    key={`star-${activity.id}-${index}`}
+                                                    name="star"
+                                                    size={16}
+                                                    color="#FFD700"
+                                                />
+                                            )
+                                        )}
                                         {hasHalfStar && (
                                             <Ionicons
                                                 name="star-half"
@@ -308,7 +357,11 @@ export default function ProfilePage() {
                                                 color="#FFD700"
                                             />
                                         )}
-                                        {[...Array(5 - Math.ceil(activity.rating))].map((_, index) => (
+                                        {[
+                                            ...Array(
+                                                5 - Math.ceil(activity.rating)
+                                            ),
+                                        ].map((_, index) => (
                                             <Ionicons
                                                 key={`star-outline-${activity.id}-${index}`}
                                                 name="star-outline"
@@ -327,7 +380,7 @@ export default function ProfilePage() {
                 <View className="w-full mt-0 mb-0 border-t border-gray-200">
                     <LinkOptions
                         title="Albums"
-                        onPress={() => router.push('/(pages)/profile/albumGallery')}
+                        onPress={() => goToFriendAlbums()}
                         color="black"
                     />
                 </View>
@@ -335,7 +388,7 @@ export default function ProfilePage() {
                 <View className="w-full mt-0 mb-0 border-t border-gray-200">
                     <LinkOptions
                         title="Songs"
-                        onPress={() => router.push('/(pages)/profile/songGallery')}
+                        onPress={() => goToFriendSongs()}
                         color="black"
                     />
                 </View>
@@ -343,7 +396,7 @@ export default function ProfilePage() {
                 <View className="w-full mt-0 mb-0 border-t border-gray-200">
                     <LinkOptions
                         title="Artists"
-                        onPress={() => router.push('/(pages)/profile/artistGallery')}
+                        onPress={() => goToFriendArtists()}
                         color="black"
                     />
                 </View>
@@ -351,7 +404,9 @@ export default function ProfilePage() {
                 <View className="w-full mt-0 mb-0 border-t border-gray-200">
                     <LinkOptions
                         title="Lists"
-                        onPress={() => router.push('/(pages)/profile/ListsPage')}
+                        onPress={() =>
+                            router.push('/(pages)/profile/ListsPage')
+                        }
                         color="black"
                     />
                 </View>
@@ -359,7 +414,9 @@ export default function ProfilePage() {
                 <View className="w-full mt-0 mb-0 border-t border-gray-200">
                     <LinkOptions
                         title="Friends"
-                        onPress={() => router.push('/(pages)/profile/friendsList')}
+                        onPress={() =>
+                            router.push('/(pages)/profile/friendsList')
+                        }
                         color="black"
                     />
                 </View>
@@ -367,11 +424,15 @@ export default function ProfilePage() {
                 {/* Share Section */}
                 <View className="w-full mt-0 mb-0 border-t border-gray-200">
                     <Text className="text-2xl pt-4 pl-4 font-bold">Share</Text>
-                    <Pressable 
-                        onPress={() => { copyToClipboard(theiruuid) }}
+                    <Pressable
+                        onPress={() => {
+                            copyToClipboard(theiruuid);
+                        }}
                         className="flex-row items-center justify-between py-4 mr-4 active:bg-gray-100"
                     >
-                        <Text className="text-m pl-4 font-bold">{theiruuid}</Text>
+                        <Text className="text-m pl-4 font-bold">
+                            {theiruuid}
+                        </Text>
                         <Ionicons name="copy-outline" size={18} color="black" />
                     </Pressable>
                 </View>
