@@ -18,7 +18,7 @@ export default function ProfilePage() {
     const [favoriteAlbums, setFavoriteAlbums] = useState<Album[]>([]);
     
     const { id } = useLocalSearchParams(); // Get the songId from the dynamic route
-
+    const theiruuid = id;
 
     // Dummy data for favorite albums
 
@@ -218,8 +218,6 @@ export default function ProfilePage() {
         Clipboard.setStringAsync(text); // Copies the text to clipboard
         Alert.alert("Copied to Clipboard", text); // Show confirmation (optional)
     };
-
-    const theiruuid = id;
 
     return (
         <SafeAreaViewAll color="white">
