@@ -15,6 +15,8 @@ import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 import * as ImagePicker from 'expo-image-picker';
 import { CLOUDINARY_URL } from '@/screens/spotify';
 import { useRouter } from 'expo-router';
+import { auth, db } from '@/firebase/firebaseConfig';
+import { doc, setDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export default function CreateNewListPage() {
     const [listTitle, setListTitle] = useState('');
@@ -78,19 +80,42 @@ export default function CreateNewListPage() {
         }
     };
 
-    const handleSaveList = () => {
+    const handleSaveList = async () => {
         if (!listTitle.trim() || !listDescription.trim()) {
             Alert.alert('Missing Fields', 'Please fill out all required fields.');
             return;
         }
 
-        console.log('List Created:', {
-            title: listTitle,
-            description: listDescription,
-            cover: listCover,
-        });
-        Alert.alert('Success', 'Your list has been created!');
-        router.push('/(pages)/profile/AddToList');
+        const user = auth.currentUser;
+        if (!user) {
+            Alert.alert('Error', 'No user is currently signed in.');
+            return;
+        }
+
+        try {
+            const userId = user.uid;
+            const listData = {
+                title: listTitle,
+                description: listDescription,
+                cover: listCover,
+                createdAt: serverTimestamp(),
+            };
+
+            // Reference to the user's lists collection
+            const listsCollectionRef = collection(db, 'users', userId, 'lists');
+
+            // Add a new document with an auto-generated ID
+            const listDocRef = await addDoc(listsCollectionRef, listData);
+
+            Alert.alert('Success', 'Your list has been created!');
+            console.log('List Created:', { id: listDocRef.id, ...listData });
+
+            // Optionally, navigate to the AddToList page with the new list ID
+            router.push(`/profile/AddToList?listId=${listDocRef.id}`);
+        } catch (error) {
+            console.error('Error creating list:', error);
+            Alert.alert('Error', 'Failed to create your list. Please try again.');
+        }
     };
 
     return (
@@ -101,7 +126,14 @@ export default function CreateNewListPage() {
                         contentContainerStyle={{ padding: 16 }}
                         keyboardShouldPersistTaps="handled"
                     >
-                        <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 16 }}>
+                        <Text
+                            style={{
+                                fontSize: 24,
+                                fontWeight: 'bold',
+                                textAlign: 'center',
+                                marginBottom: 16,
+                            }}
+                        >
                             Create New List
                         </Text>
 
