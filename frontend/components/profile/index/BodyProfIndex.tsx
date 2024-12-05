@@ -411,7 +411,7 @@ export default function ProfilePage() {
                 />
                 <LinkOptions
                     title="Test Button"
-                    onPress={() => router.push('/(pages)/profile/{`uuid`}')}
+                    onPress={() => router.push(`/(pages)/profile/${uuid}`)}
                     color="black"
                 />
                 <Pressable 

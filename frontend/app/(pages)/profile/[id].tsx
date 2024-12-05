@@ -406,29 +406,14 @@ export default function ProfilePage() {
 
             {/* Security Options */}
             <View className="w-full mt-0 mb-0 border-t border-gray-200">
-                <Text className="text-2xl pt-4 pl-4 font-bold">Settings</Text>
-                <LinkOptions
-                    title="Account Info"
-                    onPress={() => router.push('/(pages)/profile/accountInfo')}
-                    color="black"
-                />
-                <LinkOptions
-                    title="Account Info"
-                    onPress={() => router.push('/(pages)/profile/{`uuid`}')}
-                    color="black"
-                />
+                <Text className="text-2xl pt-4 pl-4 font-bold">Share</Text>
                 <Pressable 
                     onPress={() => {copyToClipboard(theiruuid)}}
-                    className="flex-row items-center justify-between mr-3 active:bg-gray-100"
+                    className="flex-row items-center justify-between py-4 mr-4 active:bg-gray-100"
                 >
                     <Text className="text-m pl-4 font-bold">{theiruuid}</Text>
                     <Ionicons name="copy-outline" size={18} color="black" />
                 </Pressable>
-                <LinkOptions
-                    title="Sign Out"
-                    onPress={confirmSignOut}
-                    color="red"
-                />
             </View>
         </ScrollView>
         </SafeAreaViewAll>
