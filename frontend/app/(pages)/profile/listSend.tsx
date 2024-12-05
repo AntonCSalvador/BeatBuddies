@@ -103,7 +103,7 @@ export default function TopAlbums2024() {
               <Pressable
                 key={album.id}
                 className="flex-row items-center bg-gray-100 rounded-lg shadow mb-4 p-4"
-                onPress={() => {router.push(`/(pages)/search/${album.spotifyId}`)}} //maybe fix later
+                onPress={() => {router.push(`/(pages)/profile/tracks/${album.spotifyId}`);}} //maybe fix later
               >
                 {/* Album Cover and Index */}
                 <View className="relative">
