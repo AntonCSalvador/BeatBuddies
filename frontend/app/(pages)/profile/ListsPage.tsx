@@ -5,6 +5,7 @@ import ListCard from '@/components/profile/lists/ListCard';
 import { useRouter } from 'expo-router';
 import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 
+//function that shows what lists a user has in their profile
 export default function ListsPage() {
     const router = useRouter();
 
