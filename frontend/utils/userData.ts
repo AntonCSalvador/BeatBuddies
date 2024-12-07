@@ -17,12 +17,14 @@ export interface UserItemData {
     createdAt?: any;
 }
 
+//An interface representing Friend Data. This used when gathering anohter persons data
 export interface FriendData {
     displayName: string;
     bio: string;
     profileImageLink: string;
 }
 
+//An interface representing an Album
 export interface Album {
     id: string;
     name: string;
