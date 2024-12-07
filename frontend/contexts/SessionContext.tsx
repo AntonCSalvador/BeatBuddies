@@ -10,6 +10,7 @@ type SessionContextType = {
     setLoading: Dispatch<SetStateAction<boolean>>;
 };
 
+//Creates a session
 const SessionContext = createContext<SessionContextType>({ 
     session: null,
     loading: true,
