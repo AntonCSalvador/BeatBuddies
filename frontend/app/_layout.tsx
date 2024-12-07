@@ -5,6 +5,7 @@ import '../global.css';
 
 SplashScreen.preventAutoHideAsync();
 
+//This is covered in a Session layer which check if the session is valid or not.
 export default function RootLayout() {
     return (
         <SessionProvider>
