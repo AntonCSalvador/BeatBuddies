@@ -35,6 +35,7 @@ interface Album {
     albumCover: string;
 }
 
+//Function that displays a user's account info
 export default function AccountInfo() {
     const [favoriteAlbums, setFavoriteAlbums] = useState<Album[]>([]);
     const [displayName, setDisplayName] = useState('');
@@ -83,6 +84,8 @@ export default function AccountInfo() {
         fetchUserData();
     }, []);
 
+
+    //function that fetches the users favorite Albums
     const fetchFavoriteAlbums = async () => {
         try {
             const user = auth.currentUser;
@@ -171,6 +174,7 @@ export default function AccountInfo() {
         }
     };
 
+    //Function adds users favoite album to list
     const handleAddFavoriteAlbum = async (album: Album) => {
         try {
             const user = auth.currentUser;
@@ -187,6 +191,7 @@ export default function AccountInfo() {
         }
     };
 
+    //Function that removes users favorite album
     const handleRemoveFavoriteAlbum = async (albumId: string) => {
         try {
             const user = auth.currentUser;

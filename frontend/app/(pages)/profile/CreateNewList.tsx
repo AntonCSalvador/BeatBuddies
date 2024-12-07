@@ -24,6 +24,7 @@ import {
     serverTimestamp,
 } from 'firebase/firestore';
 
+//Function that creates a new list
 export default function CreateNewListPage() {
     const [listTitle, setListTitle] = useState('');
     const [listDescription, setListDescription] = useState('');
@@ -96,6 +97,7 @@ export default function CreateNewListPage() {
         }
     };
 
+    //Function that checks whether all fields for a list have been enetered, else throws an error
     const handleSaveList = async () => {
         if (!listTitle.trim() || !listDescription.trim()) {
             Alert.alert(

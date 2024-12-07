@@ -20,6 +20,7 @@ interface UserSongItem extends UserItemData {
     itemId: string; // Spotify Track ID
 }
 
+//Interface representing a song
 interface Song {
     id: string;
     title: string;
@@ -28,6 +29,7 @@ interface Song {
     coverUrl: string;
 }
 
+//function that adds the selected rating to a song
 function StarRating({ rating }: { rating: number }) {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
@@ -52,6 +54,7 @@ function StarRating({ rating }: { rating: number }) {
     );
 }
 
+//function that shows what songs a user has in their list
 export default function SongGallery() {
     const router = useRouter();
     const [songs, setSongs] = useState<Song[]>([]);
