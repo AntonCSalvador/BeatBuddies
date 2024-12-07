@@ -31,6 +31,7 @@ interface UserAlbumItem extends UserItemData {
     itemId: string;
 }
 
+//Function that gets the star rating from a friend's profile
 function StarRating({ rating }: { rating: number }) {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
@@ -55,6 +56,7 @@ function StarRating({ rating }: { rating: number }) {
     );
 }
 
+//Function that shows what albums a friend likes
 export default function AlbumGallery() {
     const router = useRouter();
     const [albums, setAlbums] = useState<Album[]>([]);
@@ -64,6 +66,7 @@ export default function AlbumGallery() {
     const { theiruuid } = useLocalSearchParams();
     const userUuid = Array.isArray(theiruuid) ? theiruuid[0] : theiruuid;
     useEffect(() => {
+        //Function that fetches data regarding what albums friend likes
         async function fetchUserAlbums() {
             try {
                 setLoading(true);
