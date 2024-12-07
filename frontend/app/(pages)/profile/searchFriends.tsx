@@ -13,6 +13,7 @@ import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 import { addFriend } from '@/utils/userData';
 import { searchUserByUUID } from '@/utils/generalFirebase';
 
+//Function that handles everything related to friending
 export default function SearchFriends() {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResult, setSearchResult] = useState<any[]>([]);
@@ -36,6 +37,7 @@ export default function SearchFriends() {
         }
     };
 
+    //This function will try to add another user as a friend
     const handleAddFriend = async (uuid: string) => {
         try {
             await addFriend(uuid);
