@@ -13,6 +13,7 @@ import { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } from '@/screens/spotify';
 import * as Clipboard from 'expo-clipboard';
 import SafeAreaViewAll from '@/components/general/SafeAreaViewAll';
 
+//Shows the profile page to the user
 export default function ProfilePage() {
     const router = useRouter();
     const [favoriteAlbums, setFavoriteAlbums] = useState<Album[]>([]);
@@ -20,6 +21,7 @@ export default function ProfilePage() {
     const { id } = useLocalSearchParams();
     var theiruuid = id as string; // Make sure `id` is a string
 
+    //function that fetches the favorite album of the user
     const fetchFavoriteAlbums = async () => {
         try {
             if (!theiruuid) return;
@@ -219,6 +221,7 @@ export default function ProfilePage() {
         }, [theiruuid])
     );
 
+    //returns what album friends have
     const goToFriendAlbums = () => {
         router.push({
             pathname: '/(pages)/profile/friendAlbums',
