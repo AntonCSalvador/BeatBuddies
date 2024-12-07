@@ -3,7 +3,7 @@ import { View, Text, Image, Pressable } from 'react-native';
 import { formatDistanceToNow } from 'date-fns';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Activity from '@/types/activity';
-
+//An interafce the keeps track of where the user pressed
 interface ActivityCardProps {
     activity: Activity;
     onUserPress?: (username: string) => void;

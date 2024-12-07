@@ -25,6 +25,7 @@ export const useOTP = () => {
     }
   };
 
+  //Function to verify whether the OTP was verified or not
   const handleVerifyOTP = async () => {
     try {
       if (!confirmationResult) throw new Error('No confirmation result available');

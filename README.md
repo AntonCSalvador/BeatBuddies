@@ -36,6 +36,7 @@ Create a `spotify.tsx` file in the `frontend/screens` directory with the followi
 ```plaintext
 export const SPOTIFY_CLIENT_ID = 'xxxxxx';
 export const SPOTIFY_CLIENT_SECRET = 'xxxxxxxxxx';
+export const CLOUDINARY_URL = 'https://api.cloudinary.com/v1_1/dk4wmqxux';
 ```
 
 ## 4. Set Up Firebase
@@ -59,6 +60,7 @@ Common issue is solved by doing npx expo start --tunnel and making sure you are 
 
 - **Non-SMS Authentication**: Develop an authentication version that doesn’t rely on SMS.
 - **Enhanced Music Discovery**: More Spotify integrations to enable better music exploration and recommendations.
+- **Enhanced Activity Tab**: The activity tab will be changed such that it is updated dynamically to show what music your friends are enjoying.
 
 ## Contributors
 
